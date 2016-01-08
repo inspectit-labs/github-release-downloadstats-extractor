@@ -15,19 +15,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 /**
- * This class creates a config file of which lists all
+ * This class creates a text file which lists the monthly absolute number of
+ * downloads of inspectIT in github
+ * {@link https://github.com/inspectIT/inspectIT}
  * 
  * @author Tobias Angerstein
  */
-public class LogFileCreator {
+public class GithubReleaseDownloadstatsExtractor {
 
 	/**
-	 * The given url
+	 * The given api - URL
 	 */
 	private static String URL = "https://api.github.com/repos/inspectit/inspectit/releases";
 
 	/**
-	 * Downloads the JSON
+	 * Downloads the JSON.
 	 * 
 	 * @return JSONArray
 	 */
@@ -46,10 +48,10 @@ public class LogFileCreator {
 	}
 
 	/**
-	 * Creates the resultList of "browser_download_url" and "download_count"
+	 * Creates the resultList of "browser_download_url" and "download_count".
 	 * 
 	 * @param jsonArray
-	 *            the downloaded jsonArray
+	 *            the retrieved jsonArray
 	 * @return the resultList
 	 */
 	private static ArrayList<String[]> getResultList(JSONArray jsonArray) {
@@ -71,7 +73,7 @@ public class LogFileCreator {
 	}
 
 	/**
-	 * Writes results in textfile
+	 * Writes results in textfile.
 	 * 
 	 * @param resultList
 	 *            the results
@@ -79,13 +81,22 @@ public class LogFileCreator {
 	private static void createLogfile(ArrayList<String[]> resultList) {
 		String currentMonth = new SimpleDateFormat("yyyy-MM").format(Calendar.getInstance().getTime());
 		File logFile = new File(currentMonth + ".txt");
+		// html- file for the email body
+		File emailContent = new File("emailContent.html");
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
 			for (String[] resultTupel : resultList) {
-				writer.write(resultTupel[0] + " " + resultTupel[1]);
+				writer.write(resultTupel[0] + resultTupel[1]);
 				writer.newLine();
 			}
 			writer.close();
+			BufferedWriter emailContentWriter = new BufferedWriter(new FileWriter(emailContent));
+			for (String[] resultTupel : resultList) {
+				emailContentWriter.write("<p>" + resultTupel[0] + " " + resultTupel[1] + "</p>");
+				emailContentWriter.newLine();
+			}
+			emailContentWriter.close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,7 +104,7 @@ public class LogFileCreator {
 	}
 
 	/**
-	 * Main Method
+	 * main- method
 	 * 
 	 * @param args
 	 *            clientID clientSecret
