@@ -66,15 +66,13 @@ public class GithubReleaseDownloadstatsExtractor {
 		File configFile;
 		Properties properties = new Properties();
 		if (args.length != 1) {
-//			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
-//			properties.setProperty(DOWNLOAD_URL_KEY, System.getenv(DOWNLOAD_URL_KEY));
-//			properties.setProperty(INFLUX_DB_URL_KEY, System.getenv(INFLUX_DB_URL_KEY));
+			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
+			properties.setProperty(DOWNLOAD_URL_KEY, System.getenv(DOWNLOAD_URL_KEY));
+			properties.setProperty(INFLUX_DB_URL_KEY, System.getenv(INFLUX_DB_URL_KEY));
 			properties.setProperty(INFLUX_DB_USER_KEY, System.getenv(INFLUX_DB_USER_KEY));
 			properties.setProperty(INFLUX_DB_PASSWORD_KEY, System.getenv(INFLUX_DB_PASSWORD_KEY));
-//			properties.setProperty(INFLUX_DB_DATABASE_KEY, System.getenv(INFLUX_DB_DATABASE_KEY));
-//			properties.setProperty(CSV_FILE_KEY, System.getenv(CSV_FILE_KEY));
-			System.out.println(properties.get(INFLUX_DB_USER_KEY));
-			System.out.println(properties.get(INFLUX_DB_PASSWORD_KEY));
+			properties.setProperty(INFLUX_DB_DATABASE_KEY, System.getenv(INFLUX_DB_DATABASE_KEY));
+			properties.setProperty(CSV_FILE_KEY, System.getenv(CSV_FILE_KEY));
 		} else {
 			configFile = new File(args[0]);
 			try (FileReader reader = new FileReader(configFile)) {
