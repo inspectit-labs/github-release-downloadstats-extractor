@@ -36,7 +36,7 @@ uploadArchives {
     }
 }
 task execute(type:JavaExec) {
-   main = 'GithubReleaseDownloadstatsExtractor'
+   main = 'rocks.inspectit.statistics.downloads.GithubReleaseDownloadstatsExtractor'
    classpath = sourceSets.main.runtimeClasspath
 }
 

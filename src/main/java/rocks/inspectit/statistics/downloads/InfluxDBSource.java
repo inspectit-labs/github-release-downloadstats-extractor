@@ -1,4 +1,5 @@
 package rocks.inspectit.statistics.downloads;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ public class InfluxDBSource implements IDataSource {
 
 	private static final String SELECT_ALL_COMMAND = "SELECT * FROM downloads";
 	private static final String QUERY_GLOBAL_COUNT_COMMAND = "SELECT sum(count) FROM downloads WHERE Architecture='?1' AND Artifact='?2' AND BuildNr='?3' AND MajorVersion='?4' AND MinorVersion='?5' AND OS='?6' AND time > ?7";
-	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	private final String databaseName;
 	private final InfluxDB influxDB;
 
@@ -72,6 +73,11 @@ public class InfluxDBSource implements IDataSource {
 		for (List<Object> entry : result.getSeries().get(0).getValues()) {
 			Date date = null;
 			try {
+				String str = (String) entry.get(0);
+				str = str.replace("Z", "");
+				if (str.contains(".")) {
+					str = str.substring(0, str.lastIndexOf('.'));
+				}
 				date = format.parse((String) entry.get(0));
 			} catch (ParseException e) {
 				throw new RuntimeException(e);
@@ -114,7 +120,7 @@ public class InfluxDBSource implements IDataSource {
 		Object value = series.getValues().get(0).get(1);
 		int sum = 0;
 		if (value != null) {
-			sum = ((Double)value).intValue();
+			sum = ((Double) value).intValue();
 		}
 
 		return sum;

@@ -1,4 +1,5 @@
 package rocks.inspectit.statistics.downloads;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,9 +20,10 @@ import org.json.JSONException;
 
 /**
  * This class creates a text file which lists the monthly absolute number of downloads of inspectIT
- * in github {@link https://github.com/inspectIT/inspectIT}
+ * in github {@link https://github.com/inspectIT/inspectIT} and writes this data to a influxDB time
+ * series database.
  * 
- * @author Tobias Angerstein
+ * @author Tobias Angerstein, Alexander Wert
  */
 public class GithubReleaseDownloadstatsExtractor {
 	private static final String URL_KEY = "github.api.url";
@@ -44,7 +46,6 @@ public class GithubReleaseDownloadstatsExtractor {
 
 		File configFile;
 		Properties properties = new Properties();
-		properties.setProperty("a", null);
 		if (args.length != 1) {
 			// read config from environment variables
 			if (System.getenv(URL_KEY) != null) {
@@ -90,13 +91,19 @@ public class GithubReleaseDownloadstatsExtractor {
 		checkProperties(properties);
 		GithubReleaseDownloadstatsExtractor extractor = new GithubReleaseDownloadstatsExtractor(properties);
 		try {
-			extractor.extract();
+			extractor.retrieveDownloadStatistics();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
 
+	/**
+	 * Check validity of properties.
+	 * 
+	 * @param properties
+	 *            {@link Properties} to check.
+	 */
 	public static void checkProperties(Properties properties) {
 		if (!properties.containsKey(URL_KEY)) {
 			throw new IllegalArgumentException("GitHub API URL not specified: " + URL_KEY);
@@ -128,6 +135,12 @@ public class GithubReleaseDownloadstatsExtractor {
 	private IDataSource csvExportDataSource;
 	private IDataSource csvImportDataSource;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param properties
+	 *            {@link Properties} to use as config.
+	 */
 	public GithubReleaseDownloadstatsExtractor(Properties properties) {
 		this.properties = properties;
 		influxDBSource = new InfluxDBSource(properties.getProperty(INFLUX_DB_URL_KEY), properties.getProperty(INFLUX_DB_USER_KEY), properties.getProperty(INFLUX_DB_PASSWORD_KEY),
@@ -139,7 +152,12 @@ public class GithubReleaseDownloadstatsExtractor {
 		}
 	}
 
-	private void extract() throws IOException {
+	/**
+	 * Retrieves and stores download statistics.
+	 * 
+	 * @throws IOException
+	 */
+	private void retrieveDownloadStatistics() throws IOException {
 		// import old data
 		if (null != csvImportDataSource) {
 			List<DownloadStatistics> oldData = csvImportDataSource.load();
@@ -156,7 +174,7 @@ public class GithubReleaseDownloadstatsExtractor {
 
 		// store to database and csv
 		influxDBSource.store(resultList);
-		csvExportDataSource.store(resultList);
+		csvExportDataSource.store(influxDBSource.load());
 
 	}
 
@@ -180,7 +198,8 @@ public class GithubReleaseDownloadstatsExtractor {
 	}
 
 	/**
-	 * Creates the resultList of "browser_download_url" and "download_count".
+	 * Creates a list of Download Statistics for individual artifacts from "browser_download_url"
+	 * and "download_count".
 	 * 
 	 * @param jsonArray
 	 *            the retrieved jsonArray
@@ -236,6 +255,13 @@ public class GithubReleaseDownloadstatsExtractor {
 		return statistics;
 	}
 
+	/**
+	 * Interprets OS label.
+	 * 
+	 * @param string
+	 *            String to analyze
+	 * @return the label
+	 */
 	private String getOSLabel(String string) {
 		if (string.contains("linux")) {
 			return "Linux";
@@ -247,6 +273,13 @@ public class GithubReleaseDownloadstatsExtractor {
 		return "undefined";
 	}
 
+	/**
+	 * Interprets Architecture label (32 / 64 bit).
+	 * 
+	 * @param string
+	 *            String to analyze
+	 * @return the label
+	 */
 	private String getArchitectureLabel(String string) {
 		if (string.contains(".x86.")) {
 			return "32 bit";

@@ -1,4 +1,11 @@
 package rocks.inspectit.statistics.downloads;
+
+/**
+ * Identifier of an artifact for which download statistics can be created.
+ * 
+ * @author Alexander Wert
+ *
+ */
 public class Identifier {
 	private String majorVersion;
 	private String minorVersion;
