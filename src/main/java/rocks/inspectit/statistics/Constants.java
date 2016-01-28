@@ -31,10 +31,21 @@ public interface Constants {
 	String GITHUB_ARCHITECTURE_TAG = "Architecture";
 	long GITHUB_DATA_SINCE_TIMESTAMP = 1451606400000L;
 	
+// Github Traffic
 	String GITHUB_TRAFFIC_MEASUREMENT = "github_traffic";
 	String GITHUB_TRAFFIC_VISITORS_FIELD = "visitors_count";
 	String GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD = "unique_visitors_count";
 	String GITHUB_TRAFFIC_PERCENTAGE_FIELD = "percentage_visitors";
 	String GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD = "percentage_unique";
 	String GITHUB_TRAFFIC_REFERRING_SITE_TAG = "referring_site";
+	
+	// Twitter
+	String TWITTER_MEASUREMENT = "twitter";
+	String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
+	String TWITTER_RETWEETS_FIELD = "retweets";
+	String TWITTER_RETWEETS_OF_OWN_FIELD = "retweets_own_tweets";
+	String TWITTER_MENTIONS_FIELD = "mentions";
+	String TWITTER_LIKES_FIELD = "likes";
+	String TWITTER_MENTION_LIKES_FIELD = "mention_likes";
+	String TWITTER_FOLLOWERS_FIELD = "followers";
 }

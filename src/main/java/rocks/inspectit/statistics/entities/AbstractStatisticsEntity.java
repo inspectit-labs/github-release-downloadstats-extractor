@@ -82,6 +82,32 @@ public abstract class AbstractStatisticsEntity {
 	public Identifier getIdentifier() {
 		return identifier;
 	}
+	
+	protected int getIntValue(Object obj){
+		if (null == obj || !(obj instanceof Number || obj instanceof String)) {
+			throw new IllegalArgumentException("Invalid field value!");
+		}
+		if (obj instanceof Number) {
+			return ((Number) obj).intValue();
+		} else if (obj instanceof String) {
+			return Integer.parseInt(((String) obj));
+		} else {
+			throw new IllegalArgumentException("Invalid field value!");
+		}
+	}
+	
+	protected double getDoubleValue(Object obj){
+		if (null == obj || !(obj instanceof Number || obj instanceof String)) {
+			throw new IllegalArgumentException("Invalid field value!");
+		}
+		if (obj instanceof Number) {
+			return ((Number) obj).doubleValue();
+		} else if (obj instanceof String) {
+			return Double.parseDouble(((String) obj));
+		} else {
+			throw new IllegalArgumentException("Invalid field value!");
+		}
+	}
 
 	@Override
 	public String toString() {

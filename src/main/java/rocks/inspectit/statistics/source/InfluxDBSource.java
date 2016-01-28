@@ -45,20 +45,20 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 
 	@Override
 	public void store(Collection<T> statistics) {
-		System.out.println("Writing data to InfluxDB ... ");
+		if (statistics.isEmpty()) {
+			return;
+		}
+		String measurementName = statistics.iterator().next().getMeasurementName();
+		System.out.println("Writing data to InfluxDB for " + measurementName + " ... ");
 		BatchPoints batchPoints = BatchPoints.database(databaseName).retentionPolicy("default").consistency(ConsistencyLevel.ALL).build();
 
-		String className = null;
 		for (AbstractStatisticsEntity entity : statistics) {
-			if (className == null) {
-				className = entity.getClass().getSimpleName();
-			}
 			Point point = Point.measurement(entity.getMeasurementName()).time(entity.getTimestamp(), TimeUnit.MILLISECONDS).tag(entity.getKeyValues()).fields(entity.getFieldValues()).build();
 			batchPoints.point(point);
 		}
 
 		influxDB.write(batchPoints);
-		System.out.println("Successfully wrote data to InfluxDB for type " + className);
+		System.out.println("Successfully wrote data to InfluxDB for " + measurementName + ".");
 
 	}
 
@@ -83,7 +83,13 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 			}
 		}
 
-		String queryStatement = "SELECT " + keys + ", " + fields + " FROM " + template.getMeasurementName();
+		String queryStatement;
+		if (!keys.isEmpty()) {
+			queryStatement = "SELECT " + keys + ", " + fields + " FROM " + template.getMeasurementName();
+		} else {
+			queryStatement = "SELECT " + fields + " FROM " + template.getMeasurementName();
+		}
+
 		Query query = new Query(queryStatement, databaseName);
 		QueryResult results = influxDB.query(query);
 

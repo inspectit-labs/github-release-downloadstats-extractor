@@ -42,35 +42,11 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 			throw new IllegalArgumentException("Invalid amount of field values!");
 		}
 
-		if (fields[0] instanceof Number) {
-			visitors = ((Number) fields[0]).intValue();
-		} else if (fields[0] instanceof String) {
-			visitors = Integer.parseInt(((String) fields[0]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
+		visitors = getIntValue(fields[0]);
+		uniqueVisitors = getIntValue(fields[1]);
+		percentageVisitors = getDoubleValue(fields[2]);
+		percentageUnique = getDoubleValue(fields[3]);
 
-		if (fields[1] instanceof Number) {
-			uniqueVisitors = ((Number) fields[1]).intValue();
-		} else if (fields[1] instanceof String) {
-			uniqueVisitors = Integer.parseInt(((String) fields[1]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		if (fields[2] instanceof Number) {
-			percentageVisitors = ((Number) fields[2]).doubleValue();
-		} else if (fields[2] instanceof String) {
-			percentageVisitors = Double.parseDouble(((String) fields[2]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		if (fields[3] instanceof Number) {
-			percentageUnique = ((Number) fields[3]).doubleValue();
-		} else if (fields[3] instanceof String) {
-			percentageUnique = Double.parseDouble(((String) fields[3]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
 	}
 
 	@Override
@@ -91,57 +67,10 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		Object visitorsObj = fieldValues.get(Constants.GITHUB_TRAFFIC_VISITORS_FIELD);
-		if (null == visitorsObj || !(visitorsObj instanceof Number || visitorsObj instanceof String)) {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		if (visitorsObj instanceof Number) {
-			visitors = ((Number) visitorsObj).intValue();
-		} else if (visitorsObj instanceof String) {
-			visitors = Integer.parseInt(((String) visitorsObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		Object uniqueVisitorsObj = fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD);
-		if (null == uniqueVisitorsObj || !(uniqueVisitorsObj instanceof Number || uniqueVisitorsObj instanceof String)) {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		if (uniqueVisitorsObj instanceof Number) {
-			uniqueVisitors = ((Number) uniqueVisitorsObj).intValue();
-		} else if (uniqueVisitorsObj instanceof String) {
-			uniqueVisitors = Integer.parseInt(((String) uniqueVisitorsObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		Object percentageObj = fieldValues.get(Constants.GITHUB_TRAFFIC_PERCENTAGE_FIELD);
-		if (null == percentageObj || !(percentageObj instanceof Number || percentageObj instanceof String)) {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		if (percentageObj instanceof Number) {
-			percentageVisitors = ((Number) percentageObj).doubleValue();
-		} else if (percentageObj instanceof String) {
-			percentageVisitors = Double.parseDouble(((String) percentageObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		Object percentageUniqueObj = fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD);
-		if (null == percentageUniqueObj || !(percentageUniqueObj instanceof Number || percentageUniqueObj instanceof String)) {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		if (percentageUniqueObj instanceof Number) {
-			percentageUnique = ((Number) percentageUniqueObj).doubleValue();
-		} else if (percentageUniqueObj instanceof String) {
-			percentageUnique = Double.parseDouble(((String) percentageUniqueObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
+		visitors = getIntValue(fieldValues.get(Constants.GITHUB_TRAFFIC_VISITORS_FIELD));
+		uniqueVisitors = getIntValue(fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD));
+		percentageVisitors = getDoubleValue(fieldValues.get(Constants.GITHUB_TRAFFIC_PERCENTAGE_FIELD));
+		percentageUnique = getDoubleValue(fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD));
 	}
 
 	/**

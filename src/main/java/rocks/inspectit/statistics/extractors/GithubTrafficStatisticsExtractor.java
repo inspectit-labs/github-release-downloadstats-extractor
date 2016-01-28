@@ -84,18 +84,14 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 		try {
 
 			JSONObject jsonObject = new JSONObject(jsonString);
-			long timestampThreshold = getLatestTimestamp();
 			JSONArray counts = jsonObject.getJSONArray("counts");
 			for (int z = 0; z < counts.length(); z++) {
 				long time = Long.parseLong(counts.getJSONObject(z).get("bucket").toString()) * 1000L;
-				if (time > timestampThreshold + 1000L * 60 * 60 * 10) {
 					int total = Integer.parseInt(counts.getJSONObject(z).get("total").toString());
 					int unique = Integer.parseInt(counts.getJSONObject(z).get("unique").toString());
 
 					GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time, "all", total, unique, 100.0, 100.0);
 					statistics.add(entity);
-				}
-
 			}
 			int overallTotal = Integer.parseInt(jsonObject.getJSONObject("summary").get("total").toString());
 			int overallUnique = Integer.parseInt(jsonObject.getJSONObject("summary").get("unique").toString());
@@ -105,16 +101,13 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 			long time = roundedDate.getTime();
 			JSONArray referrer = jsonObject.getJSONArray("referrer");
 			for (int z = 0; z < referrer.length(); z++) {
-				if (time > timestampThreshold + 1000L * 60 * 60 * 10) {
 					String site = referrer.getJSONObject(z).get("site").toString();
 					int total = Integer.parseInt(referrer.getJSONObject(z).get("total").toString());
 					int unique = Integer.parseInt(referrer.getJSONObject(z).get("unique").toString());
 
-					GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time + 1000*60*60, site, total, unique, 100.0*((double) total) / ((double) overallTotal), 100.0*((double) unique)
+					GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time, site, total, unique, 100.0*((double) total) / ((double) overallTotal), 100.0*((double) unique)
 							/ ((double) overallUnique));
 					statistics.add(entity);
-				}
-
 			}
 		} catch (JSONException e) {
 			throw new RuntimeException(e);

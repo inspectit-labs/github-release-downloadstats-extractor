@@ -36,13 +36,8 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 			throw new IllegalArgumentException("Invalid amount of field values!");
 		}
 
-		if (fields[0] instanceof Number) {
-			downloadCount = ((Number) fields[0]).intValue();
-		} else if (fields[0] instanceof String) {
-			downloadCount = Integer.parseInt(((String) fields[0]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
+		downloadCount = getIntValue(fields[0]);
+
 	}
 
 	@Override
@@ -77,18 +72,7 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		Object countObj = fieldValues.get(Constants.GITHUB_COUNT_FIELD);
-		if (null == countObj || !(countObj instanceof Number || countObj instanceof String)) {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-
-		if (countObj instanceof Number) {
-			downloadCount = ((Number) countObj).intValue();
-		} else if (countObj instanceof String) {
-			downloadCount = Integer.parseInt(((String) countObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
+		downloadCount = getIntValue(fieldValues.get(Constants.GITHUB_COUNT_FIELD));
 
 	}
 

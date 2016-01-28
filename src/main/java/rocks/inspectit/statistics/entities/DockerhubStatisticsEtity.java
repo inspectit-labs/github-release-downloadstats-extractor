@@ -5,9 +5,9 @@ import java.util.Map;
 import rocks.inspectit.statistics.Constants;
 
 public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
-	
-	private static final String[] KEY_NAMES  = new String[] { Constants.DOCKER_HUB_NAME_TAG };
-private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_PULL_COUNT_FIELD, Constants.DOCKER_HUB_STAR_COUNT_FIELD };
+
+	private static final String[] KEY_NAMES = new String[] { Constants.DOCKER_HUB_NAME_TAG };
+	private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_PULL_COUNT_FIELD, Constants.DOCKER_HUB_STAR_COUNT_FIELD };
 
 	private static DockerhubStatisticsEtity template;
 
@@ -17,15 +17,15 @@ private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_
 		}
 		return template;
 	}
-	
+
 	private int starCount;
 	private int pullCount;
-	
+
 	private DockerhubStatisticsEtity() {
 		super(Constants.DOCKER_HUB_MEASUREMENT, 0L, null);
 	}
 
-	public DockerhubStatisticsEtity(long timestamp, String repositoryName,  int pullCount, int starCount) {
+	public DockerhubStatisticsEtity(long timestamp, String repositoryName, int pullCount, int starCount) {
 		super(Constants.DOCKER_HUB_MEASUREMENT, timestamp, new String[] { repositoryName });
 		this.pullCount = pullCount;
 		this.starCount = starCount;
@@ -38,25 +38,10 @@ private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_
 			throw new IllegalArgumentException("Invalid amount of field values!");
 		}
 
-		if (fields[0] instanceof Number) {
-			pullCount = ((Number) fields[0]).intValue();
-		} else if (fields[0] instanceof String) {
-			pullCount = Integer.parseInt(((String) fields[0]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		
-		if (fields[1] instanceof Number) {
-			starCount = ((Number) fields[1]).intValue();
-		} else if (fields[1] instanceof String) {
-			starCount = Integer.parseInt(((String) fields[1]));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
+		pullCount = getIntValue(fields[0]);
+		starCount = getIntValue(fields[1]);
 
 	}
-
-
 
 	/**
 	 * @return the starCount
@@ -105,32 +90,8 @@ private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		Object pullCountObj = fieldValues.get(Constants.DOCKER_HUB_PULL_COUNT_FIELD);
-		if(null == pullCountObj || !(pullCountObj instanceof Number || pullCountObj instanceof String)){
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		
-		if (pullCountObj instanceof Number) {
-			pullCount = ((Number) pullCountObj).intValue();
-		} else if (pullCountObj instanceof String) {
-			pullCount = Integer.parseInt(((String) pullCountObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		
-		Object starCountObj = fieldValues.get(Constants.DOCKER_HUB_STAR_COUNT_FIELD);
-		if(null == starCountObj || !(starCountObj instanceof Number || starCountObj instanceof String)){
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		
-		if (starCountObj instanceof Number) {
-			starCount = ((Number) starCountObj).intValue();
-		} else if (starCountObj instanceof String) {
-			starCount = Integer.parseInt(((String) starCountObj));
-		} else {
-			throw new IllegalArgumentException("Invalid field value!");
-		}
-		
+		pullCount = getIntValue(fieldValues.get(Constants.DOCKER_HUB_PULL_COUNT_FIELD));
+		starCount = getIntValue(fieldValues.get(Constants.DOCKER_HUB_STAR_COUNT_FIELD));
 	}
 
 }

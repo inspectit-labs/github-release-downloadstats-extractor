@@ -11,6 +11,7 @@ import org.influxdb.InfluxDBFactory;
 import rocks.inspectit.statistics.extractors.DockerhubStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubDownloadsStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubTrafficStatisticsExtractor;
+import rocks.inspectit.statistics.extractors.TwitterStatisticsExtractor;
 
 public class StatisticsExtractor {
 	public static final String INFLUX_DB_URL_KEY = "influxdb.url";
@@ -52,10 +53,12 @@ public class StatisticsExtractor {
 		GithubDownloadsStatisticsExtractor githubDownloadsExtractor = new GithubDownloadsStatisticsExtractor(properties, influx);
 		DockerhubStatisticsExtractor dockerHubExtractor = new DockerhubStatisticsExtractor(properties, influx);
 		GithubTrafficStatisticsExtractor githubTrafficExtractor = new GithubTrafficStatisticsExtractor(properties, influx);
+		TwitterStatisticsExtractor twitterExtractor = new TwitterStatisticsExtractor(properties, influx);
 		try {
 			githubDownloadsExtractor.retrieveStatistics();
 			githubTrafficExtractor.retrieveStatistics();
 			dockerHubExtractor.retrieveStatistics();
+			twitterExtractor.retrieveStatistics();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
