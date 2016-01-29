@@ -10,6 +10,7 @@ import org.influxdb.InfluxDBFactory;
 
 import rocks.inspectit.statistics.extractors.DockerhubStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubDownloadsStatisticsExtractor;
+import rocks.inspectit.statistics.extractors.GithubRepositoryStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubTrafficStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.TwitterStatisticsExtractor;
 
@@ -53,10 +54,12 @@ public class StatisticsExtractor {
 		GithubDownloadsStatisticsExtractor githubDownloadsExtractor = new GithubDownloadsStatisticsExtractor(properties, influx);
 		DockerhubStatisticsExtractor dockerHubExtractor = new DockerhubStatisticsExtractor(properties, influx);
 		GithubTrafficStatisticsExtractor githubTrafficExtractor = new GithubTrafficStatisticsExtractor(properties, influx);
+		GithubRepositoryStatisticsExtractor githubRepositoryExtractor = new GithubRepositoryStatisticsExtractor(properties, influx);
 		TwitterStatisticsExtractor twitterExtractor = new TwitterStatisticsExtractor(properties, influx);
 		try {
 			githubDownloadsExtractor.retrieveStatistics();
 			githubTrafficExtractor.retrieveStatistics();
+			githubRepositoryExtractor.retrieveStatistics();
 			dockerHubExtractor.retrieveStatistics();
 			twitterExtractor.retrieveStatistics();
 		} catch (IOException e) {

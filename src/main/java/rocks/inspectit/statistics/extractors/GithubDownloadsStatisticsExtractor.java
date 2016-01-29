@@ -166,7 +166,7 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 	}
 
 	@Override
-	protected boolean fieldCountsAbsolute() {
+	protected boolean needsRelativationOfValues() {
 		return true;
 	}
 

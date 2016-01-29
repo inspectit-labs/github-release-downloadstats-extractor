@@ -66,7 +66,7 @@ public class DockerhubStatisticsExtractor extends AbstractExtractor<DockerhubSta
 	}
 
 	@Override
-	protected boolean fieldCountsAbsolute() {
+	protected boolean needsRelativationOfValues() {
 		return true;
 	}
 

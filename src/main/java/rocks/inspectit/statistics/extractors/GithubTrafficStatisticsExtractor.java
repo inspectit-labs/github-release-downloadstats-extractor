@@ -117,7 +117,7 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 	}
 
 	@Override
-	protected boolean fieldCountsAbsolute() {
+	protected boolean needsRelativationOfValues() {
 		return false;
 	}
 

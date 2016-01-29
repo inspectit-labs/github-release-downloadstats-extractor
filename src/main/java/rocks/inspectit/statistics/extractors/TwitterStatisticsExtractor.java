@@ -128,7 +128,7 @@ public class TwitterStatisticsExtractor extends AbstractExtractor<TwitterStatist
 	}
 
 	@Override
-	protected boolean fieldCountsAbsolute() {
+	protected boolean needsRelativationOfValues() {
 		return true;
 	}
 

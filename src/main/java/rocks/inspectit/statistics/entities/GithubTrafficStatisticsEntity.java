@@ -2,12 +2,17 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
-import rocks.inspectit.statistics.Constants;
-
 public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String[] KEY_NAMES = new String[] { Constants.GITHUB_TRAFFIC_REFERRING_SITE_TAG };
-	private static final String[] FIELD_NAMES = new String[] { Constants.GITHUB_TRAFFIC_VISITORS_FIELD, Constants.GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD, Constants.GITHUB_TRAFFIC_PERCENTAGE_FIELD,
-			Constants.GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD };
+	private static final String GITHUB_TRAFFIC_MEASUREMENT = "github_traffic";
+	private static final String GITHUB_TRAFFIC_VISITORS_FIELD = "visitors_count";
+	private static final String GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD = "unique_visitors_count";
+	private static final String GITHUB_TRAFFIC_PERCENTAGE_FIELD = "percentage_visitors";
+	private static final String GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD = "percentage_unique";
+	private static final String GITHUB_TRAFFIC_REFERRING_SITE_TAG = "referring_site";
+
+	private static final String[] KEY_NAMES = new String[] { GITHUB_TRAFFIC_REFERRING_SITE_TAG };
+	private static final String[] FIELD_NAMES = new String[] { GITHUB_TRAFFIC_VISITORS_FIELD, GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD, GITHUB_TRAFFIC_PERCENTAGE_FIELD,
+			GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD };
 
 	private static GithubTrafficStatisticsEntity template;
 
@@ -24,11 +29,11 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 	private double percentageUnique;
 
 	private GithubTrafficStatisticsEntity() {
-		super(Constants.GITHUB_TRAFFIC_MEASUREMENT, 0L, null);
+		super(GITHUB_TRAFFIC_MEASUREMENT, 0L, null);
 	}
 
 	public GithubTrafficStatisticsEntity(long timestamp, String referringSite, int numVisitors, int numUniqueVisitors, double percentageVisitors, double percentageUnique) {
-		super(Constants.GITHUB_TRAFFIC_MEASUREMENT, timestamp, new String[] { referringSite });
+		super(GITHUB_TRAFFIC_MEASUREMENT, timestamp, new String[] { referringSite });
 		this.visitors = numVisitors;
 		this.uniqueVisitors = numUniqueVisitors;
 		this.percentageVisitors = percentageVisitors;
@@ -36,7 +41,7 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 	}
 
 	public GithubTrafficStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
-		super(Constants.GITHUB_TRAFFIC_MEASUREMENT, timestamp, keys);
+		super(GITHUB_TRAFFIC_MEASUREMENT, timestamp, keys);
 
 		if (fields.length < 4) {
 			throw new IllegalArgumentException("Invalid amount of field values!");
@@ -67,10 +72,10 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		visitors = getIntValue(fieldValues.get(Constants.GITHUB_TRAFFIC_VISITORS_FIELD));
-		uniqueVisitors = getIntValue(fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD));
-		percentageVisitors = getDoubleValue(fieldValues.get(Constants.GITHUB_TRAFFIC_PERCENTAGE_FIELD));
-		percentageUnique = getDoubleValue(fieldValues.get(Constants.GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD));
+		visitors = getIntValue(fieldValues.get(GITHUB_TRAFFIC_VISITORS_FIELD));
+		uniqueVisitors = getIntValue(fieldValues.get(GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD));
+		percentageVisitors = getDoubleValue(fieldValues.get(GITHUB_TRAFFIC_PERCENTAGE_FIELD));
+		percentageUnique = getDoubleValue(fieldValues.get(GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD));
 	}
 
 	/**

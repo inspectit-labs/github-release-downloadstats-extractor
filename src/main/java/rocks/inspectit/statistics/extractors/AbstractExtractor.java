@@ -90,7 +90,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 		resultList = filteredList;
 
 		// calculate relative counts
-		if (fieldCountsAbsolute() && !resultList.isEmpty()) {
+		if (needsRelativationOfValues() && !resultList.isEmpty()) {
 			for (T entity : resultList) {
 				Map<String, Number> absoluteCounts = influxDBSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(), template);
 				if (null != absoluteCounts) {
@@ -127,7 +127,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	 */
 	protected abstract List<T> getResultList(String jsonString);
 
-	protected abstract boolean fieldCountsAbsolute();
+	protected abstract boolean needsRelativationOfValues();
 
 	protected abstract void initProperties(Properties properties);
 

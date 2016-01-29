@@ -2,12 +2,19 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
-import rocks.inspectit.statistics.Constants;
-
 public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
+	private static final String TWITTER_MEASUREMENT = "twitter";
+	private static final String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
+	private static final String TWITTER_RETWEETS_FIELD = "retweets";
+	private static final String TWITTER_RETWEETS_OF_OWN_FIELD = "retweets_own_tweets";
+	private static final String TWITTER_MENTIONS_FIELD = "mentions";
+	private static final String TWITTER_LIKES_FIELD = "likes";
+	private static final String TWITTER_MENTION_LIKES_FIELD = "mention_likes";
+	private static final String TWITTER_FOLLOWERS_FIELD = "followers";
+
 	private static final String[] KEY_NAMES = new String[0];
-	private static final String[] FIELD_NAMES = new String[] { Constants.TWITTER_OWN_TWEETS_FIELD, Constants.TWITTER_RETWEETS_FIELD, Constants.TWITTER_RETWEETS_OF_OWN_FIELD, Constants.TWITTER_MENTIONS_FIELD, Constants.TWITTER_LIKES_FIELD,
-			Constants.TWITTER_MENTION_LIKES_FIELD, Constants.TWITTER_FOLLOWERS_FIELD };
+	private static final String[] FIELD_NAMES = new String[] { TWITTER_OWN_TWEETS_FIELD, TWITTER_RETWEETS_FIELD, TWITTER_RETWEETS_OF_OWN_FIELD, TWITTER_MENTIONS_FIELD, TWITTER_LIKES_FIELD,
+			TWITTER_MENTION_LIKES_FIELD, TWITTER_FOLLOWERS_FIELD };
 
 	private static TwitterStatisticsEntity template;
 
@@ -27,7 +34,7 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	int followers;
 
 	private TwitterStatisticsEntity() {
-		super(Constants.TWITTER_MEASUREMENT, 0L, null);
+		super(TWITTER_MEASUREMENT, 0L, null);
 	}
 
 	/**
@@ -41,7 +48,7 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	 * @param followers
 	 */
 	public TwitterStatisticsEntity(long timestamp, int ownTweets, int retweets, int retweetsOfOwnTweets, int mentions, int likes, int mentionLikes, int followers) {
-		super(Constants.TWITTER_MEASUREMENT, timestamp, new String[0]);
+		super(TWITTER_MEASUREMENT, timestamp, new String[0]);
 		this.ownTweets = ownTweets;
 		this.retweets = retweets;
 		this.mentions = mentions;
@@ -52,7 +59,7 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	}
 
 	public TwitterStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
-		super(Constants.TWITTER_MEASUREMENT, timestamp, keys);
+		super(TWITTER_MEASUREMENT, timestamp, keys);
 
 		if (fields.length < 7) {
 			throw new IllegalArgumentException("Invalid amount of field values!");
@@ -84,13 +91,13 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		ownTweets = getIntValue(fieldValues.get(Constants.TWITTER_OWN_TWEETS_FIELD));
-		retweets = getIntValue(fieldValues.get(Constants.TWITTER_RETWEETS_FIELD));
-		setRetweetsOfOwnTweets(getIntValue(fieldValues.get(Constants.TWITTER_RETWEETS_OF_OWN_FIELD)));
-		mentions = getIntValue(fieldValues.get(Constants.TWITTER_MENTIONS_FIELD));
-		likes = getIntValue(fieldValues.get(Constants.TWITTER_LIKES_FIELD));
-		mentionLikes = getIntValue(fieldValues.get(Constants.TWITTER_MENTION_LIKES_FIELD));
-		followers = getIntValue(fieldValues.get(Constants.TWITTER_FOLLOWERS_FIELD));
+		ownTweets = getIntValue(fieldValues.get(TWITTER_OWN_TWEETS_FIELD));
+		retweets = getIntValue(fieldValues.get(TWITTER_RETWEETS_FIELD));
+		setRetweetsOfOwnTweets(getIntValue(fieldValues.get(TWITTER_RETWEETS_OF_OWN_FIELD)));
+		mentions = getIntValue(fieldValues.get(TWITTER_MENTIONS_FIELD));
+		likes = getIntValue(fieldValues.get(TWITTER_LIKES_FIELD));
+		mentionLikes = getIntValue(fieldValues.get(TWITTER_MENTION_LIKES_FIELD));
+		followers = getIntValue(fieldValues.get(TWITTER_FOLLOWERS_FIELD));
 	}
 
 	/**
@@ -191,7 +198,8 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	}
 
 	/**
-	 * @param retweetsOfOwnTweets the retweetsOfOwnTweets to set
+	 * @param retweetsOfOwnTweets
+	 *            the retweetsOfOwnTweets to set
 	 */
 	public void setRetweetsOfOwnTweets(int retweetsOfOwnTweets) {
 		this.retweetsOfOwnTweets = retweetsOfOwnTweets;

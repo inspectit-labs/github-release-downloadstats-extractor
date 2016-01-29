@@ -5,9 +5,13 @@ import java.util.Map;
 import rocks.inspectit.statistics.Constants;
 
 public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
-
-	private static final String[] KEY_NAMES = new String[] { Constants.DOCKER_HUB_NAME_TAG };
-	private static final String[] FIELD_NAMES = new String[] { Constants.DOCKER_HUB_PULL_COUNT_FIELD, Constants.DOCKER_HUB_STAR_COUNT_FIELD };
+	private static final String DOCKER_HUB_MEASUREMENT = "docker_hub";
+	private static final String DOCKER_HUB_PULL_COUNT_FIELD = "pull_count";
+	private static final String DOCKER_HUB_STAR_COUNT_FIELD = "star_count";
+	private static final String DOCKER_HUB_NAME_TAG = "repository_name";
+	
+	private static final String[] KEY_NAMES = new String[] { DOCKER_HUB_NAME_TAG };
+	private static final String[] FIELD_NAMES = new String[] { DOCKER_HUB_PULL_COUNT_FIELD, DOCKER_HUB_STAR_COUNT_FIELD };
 
 	private static DockerhubStatisticsEtity template;
 
@@ -22,17 +26,17 @@ public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
 	private int pullCount;
 
 	private DockerhubStatisticsEtity() {
-		super(Constants.DOCKER_HUB_MEASUREMENT, 0L, null);
+		super(DOCKER_HUB_MEASUREMENT, 0L, null);
 	}
 
 	public DockerhubStatisticsEtity(long timestamp, String repositoryName, int pullCount, int starCount) {
-		super(Constants.DOCKER_HUB_MEASUREMENT, timestamp, new String[] { repositoryName });
+		super(DOCKER_HUB_MEASUREMENT, timestamp, new String[] { repositoryName });
 		this.pullCount = pullCount;
 		this.starCount = starCount;
 	}
 
 	public DockerhubStatisticsEtity(String[] keys, Object[] fields, long timestamp) {
-		super(Constants.DOCKER_HUB_MEASUREMENT, timestamp, keys);
+		super(DOCKER_HUB_MEASUREMENT, timestamp, keys);
 
 		if (fields.length < 2) {
 			throw new IllegalArgumentException("Invalid amount of field values!");
@@ -90,8 +94,8 @@ public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		pullCount = getIntValue(fieldValues.get(Constants.DOCKER_HUB_PULL_COUNT_FIELD));
-		starCount = getIntValue(fieldValues.get(Constants.DOCKER_HUB_STAR_COUNT_FIELD));
+		pullCount = getIntValue(fieldValues.get(DOCKER_HUB_PULL_COUNT_FIELD));
+		starCount = getIntValue(fieldValues.get(DOCKER_HUB_STAR_COUNT_FIELD));
 	}
 
 }

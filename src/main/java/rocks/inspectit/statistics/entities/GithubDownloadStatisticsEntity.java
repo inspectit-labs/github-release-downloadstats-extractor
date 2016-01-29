@@ -5,9 +5,18 @@ import java.util.Map;
 import rocks.inspectit.statistics.Constants;
 
 public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String[] KEY_NAMES = new String[] { Constants.GITHUB_ARTIFACT_TAG, Constants.GITHUB_OS_TAG, Constants.GITHUB_ARCHITECTURE_TAG, Constants.GITHUB_MAJOR_VERSION_TAG,
-			Constants.GITHUB_MINOR_VERSION_TAG, Constants.GITHUB_BUILD_NR_TAG };
-	private static final String[] FIELD_NAMES = new String[] { Constants.GITHUB_COUNT_FIELD };
+	private static final String GITHUB_DOWNLOADS_MEASUREMENT = "downloads";
+	private static final String GITHUB_COUNT_FIELD = "count";
+	private static final String GITHUB_MAJOR_VERSION_TAG = "MajorVersion";
+	private static final String GITHUB_MINOR_VERSION_TAG = "MinorVersion";
+	private static final String GITHUB_BUILD_NR_TAG = "BuildNr";
+	private static final String GITHUB_ARTIFACT_TAG = "Artifact";
+	private static final String GITHUB_OS_TAG = "OS";
+	private static final String GITHUB_ARCHITECTURE_TAG = "Architecture";
+	
+	private static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG,
+			GITHUB_MINOR_VERSION_TAG, GITHUB_BUILD_NR_TAG };
+	private static final String[] FIELD_NAMES = new String[] { GITHUB_COUNT_FIELD };
 
 	private static GithubDownloadStatisticsEntity template;
 
@@ -21,16 +30,16 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	private int downloadCount;
 
 	private GithubDownloadStatisticsEntity() {
-		super(Constants.GITHUB_DOWNLOADS_MEASUREMENT, 0L, null);
+		super(GITHUB_DOWNLOADS_MEASUREMENT, 0L, null);
 	}
 
 	public GithubDownloadStatisticsEntity(long timestamp, String artifact, String os, String architecture, String majorVersion, String minorVersion, String buildNr, int donwloadCount) {
-		super(Constants.GITHUB_DOWNLOADS_MEASUREMENT, timestamp, new String[] { artifact, os, architecture, majorVersion, minorVersion, buildNr });
+		super(GITHUB_DOWNLOADS_MEASUREMENT, timestamp, new String[] { artifact, os, architecture, majorVersion, minorVersion, buildNr });
 		setDownloadCount(donwloadCount);
 	}
 
 	public GithubDownloadStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
-		super(Constants.GITHUB_DOWNLOADS_MEASUREMENT, timestamp, keys);
+		super(GITHUB_DOWNLOADS_MEASUREMENT, timestamp, keys);
 
 		if (fields.length < 1) {
 			throw new IllegalArgumentException("Invalid amount of field values!");
@@ -72,7 +81,7 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 
 	@Override
 	public void setFields(Map<String, Object> fieldValues) {
-		downloadCount = getIntValue(fieldValues.get(Constants.GITHUB_COUNT_FIELD));
+		downloadCount = getIntValue(fieldValues.get(GITHUB_COUNT_FIELD));
 
 	}
 
