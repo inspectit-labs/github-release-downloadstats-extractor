@@ -20,7 +20,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	/**
 	 * 5 hours time offset.
 	 */
-	private static final long TIME_OFFSET = 1000L * 60 * 60 * 50;
+	private static final long TIME_OFFSET = 1000L * 60 * 60 * 20;
 	private final Properties properties;
 	private String apiUri;
 	private T template;
