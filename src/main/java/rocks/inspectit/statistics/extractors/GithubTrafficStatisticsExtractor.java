@@ -5,8 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -59,26 +61,14 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 	private static final String GITHUB_SESSION_URL = "https://github.com/session";
 	private static final String SEARCH_PATTERN_AUTHEN_TOKEN = "<input name=\"authenticity_token\" type=\"hidden\" value=\"";
 
-	private static final String EXPORT_CSV_FILE_KEY = "github.traffic.target.csv.file.export";
-	private static final String IMPORT_CSV_FILE_KEY = "github.traffic.target.csv.file.import";
-	private static final String IMPORT_FROM_CSV = "github.traffic.import.from.csv.before";
 
 	public GithubTrafficStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		InfluxDBSource<GithubTrafficStatisticsEntity> influxDBSource = new InfluxDBSource<GithubTrafficStatisticsEntity>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
-		CSVSource<GithubTrafficStatisticsEntity> csvExportDataSource = new CSVSource<GithubTrafficStatisticsEntity>(properties.getProperty(EXPORT_CSV_FILE_KEY));
-		boolean importFromCsv = Boolean.parseBoolean(properties.getProperty(IMPORT_FROM_CSV, "false"));
-		CSVSource<GithubTrafficStatisticsEntity> csvImportDataSource = null;
-		if (importFromCsv) {
-			csvImportDataSource = new CSVSource<GithubTrafficStatisticsEntity>(properties.getProperty(IMPORT_CSV_FILE_KEY));
-		}
-
-		init(getProperties().getProperty(URL_KEY), GithubTrafficStatisticsEntity.getTemplate(), influxDBSource, csvImportDataSource, csvExportDataSource, 0L);
-
+		init(getProperties().getProperty(URL_KEY), GithubTrafficStatisticsEntity.getTemplate(), influxDB, 0L);
 	}
 
 	@Override
-	protected List<GithubTrafficStatisticsEntity> getResultList(String jsonString) {
+	public List<GithubTrafficStatisticsEntity> getResultList(String jsonString) {
 		System.out.println("Retrieving Github Traffic statistics...");
 		List<GithubTrafficStatisticsEntity> statistics = new ArrayList<GithubTrafficStatisticsEntity>();
 		try {
@@ -87,27 +77,26 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 			JSONArray counts = jsonObject.getJSONArray("counts");
 			for (int z = 0; z < counts.length(); z++) {
 				long time = Long.parseLong(counts.getJSONObject(z).get("bucket").toString()) * 1000L;
-					int total = Integer.parseInt(counts.getJSONObject(z).get("total").toString());
-					int unique = Integer.parseInt(counts.getJSONObject(z).get("unique").toString());
+				int total = Integer.parseInt(counts.getJSONObject(z).get("total").toString());
+				int unique = Integer.parseInt(counts.getJSONObject(z).get("unique").toString());
 
-					GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time, "all", total, unique, 100.0, 100.0);
-					statistics.add(entity);
+				GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time, "all", total, unique, 100.0, 100.0);
+				statistics.add(entity);
 			}
 			int overallTotal = Integer.parseInt(jsonObject.getJSONObject("summary").get("total").toString());
 			int overallUnique = Integer.parseInt(jsonObject.getJSONObject("summary").get("unique").toString());
 
-			long timestamp = System.currentTimeMillis();
-			Date roundedDate = DateUtils.truncate(new Date(timestamp), Calendar.DATE);
-			long time = roundedDate.getTime();
+			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+			long timestamp = DateUtils.truncate(cal,Calendar.DATE).getTimeInMillis();
 			JSONArray referrer = jsonObject.getJSONArray("referrer");
 			for (int z = 0; z < referrer.length(); z++) {
-					String site = referrer.getJSONObject(z).get("site").toString();
-					int total = Integer.parseInt(referrer.getJSONObject(z).get("total").toString());
-					int unique = Integer.parseInt(referrer.getJSONObject(z).get("unique").toString());
+				String site = referrer.getJSONObject(z).get("site").toString();
+				int total = Integer.parseInt(referrer.getJSONObject(z).get("total").toString());
+				int unique = Integer.parseInt(referrer.getJSONObject(z).get("unique").toString());
 
-					GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(time, site, total, unique, 100.0*((double) total) / ((double) overallTotal), 100.0*((double) unique)
-							/ ((double) overallUnique));
-					statistics.add(entity);
+				GithubTrafficStatisticsEntity entity = new GithubTrafficStatisticsEntity(timestamp, site, total, unique, 100.0 * ((double) total) / ((double) overallTotal), 100.0 * ((double) unique)
+						/ ((double) overallUnique));
+				statistics.add(entity);
 			}
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
@@ -133,23 +122,10 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 		if (!properties.contains(GITHUB_PASSWORD_KEY) && System.getenv(GITHUB_PASSWORD_KEY) != null) {
 			properties.setProperty(GITHUB_PASSWORD_KEY, System.getenv(GITHUB_PASSWORD_KEY));
 		}
-		
+
 		if (!properties.contains(TOP_LIST_URL_KEY) && System.getenv(TOP_LIST_URL_KEY) != null) {
 			properties.setProperty(TOP_LIST_URL_KEY, System.getenv(TOP_LIST_URL_KEY));
 		}
-
-		if (!properties.contains(EXPORT_CSV_FILE_KEY) && System.getenv(EXPORT_CSV_FILE_KEY) != null) {
-			properties.setProperty(EXPORT_CSV_FILE_KEY, System.getenv(EXPORT_CSV_FILE_KEY));
-		}
-
-		if (!properties.contains(IMPORT_FROM_CSV) && System.getenv(IMPORT_FROM_CSV) != null) {
-			properties.setProperty(IMPORT_FROM_CSV, System.getenv(IMPORT_FROM_CSV));
-		}
-		if (!properties.contains(IMPORT_CSV_FILE_KEY) && System.getenv(IMPORT_CSV_FILE_KEY) != null) {
-			properties.setProperty(IMPORT_CSV_FILE_KEY, System.getenv(IMPORT_CSV_FILE_KEY));
-		}
-		
-
 	}
 
 	@Override
@@ -166,15 +142,6 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 		if (!properties.containsKey(TOP_LIST_URL_KEY)) {
 			throw new IllegalArgumentException("Property not specified: " + TOP_LIST_URL_KEY);
 		}
-
-		if (!properties.containsKey(EXPORT_CSV_FILE_KEY)) {
-			throw new IllegalArgumentException("Property not specified: " + EXPORT_CSV_FILE_KEY);
-		}
-
-		if (Boolean.parseBoolean(properties.getProperty(IMPORT_FROM_CSV, "false")) && !properties.containsKey(IMPORT_CSV_FILE_KEY)) {
-			throw new IllegalArgumentException("Property not specified although enabled: " + IMPORT_CSV_FILE_KEY);
-		}
-
 	}
 
 	@SuppressWarnings("deprecation")
@@ -266,7 +233,6 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 	}
 
 	private String retrieveTopReferrer(DefaultHttpClient client, HttpContext httpContext) throws IOException, ClientProtocolException, UnsupportedEncodingException {
-		System.out.println("URL top referring sites: " + getProperties().getProperty(TOP_LIST_URL_KEY));
 		HttpGet httpGet = new HttpGet(getProperties().getProperty(TOP_LIST_URL_KEY));
 		CloseableHttpResponse response = client.execute(httpGet, httpContext);
 		HttpEntity httpEntity = response.getEntity();

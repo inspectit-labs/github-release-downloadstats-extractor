@@ -3,8 +3,10 @@ package rocks.inspectit.statistics.extractors;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.influxdb.InfluxDB;
@@ -20,32 +22,18 @@ import rocks.inspectit.statistics.source.InfluxDBSource;
 public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<GithubRepositoryStatisticsEntity> {
 	private static final String URL_KEY = "github.repository.api.url";
 
-	private static final String EXPORT_CSV_FILE_KEY = "github.repository.target.csv.file.export";
-	private static final String IMPORT_CSV_FILE_KEY = "github.repository.target.csv.file.import";
-	private static final String IMPORT_FROM_CSV = "github.repository.import.from.csv.before";
-
 	public GithubRepositoryStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		InfluxDBSource<GithubRepositoryStatisticsEntity> influxDBSource = new InfluxDBSource<GithubRepositoryStatisticsEntity>(influxDB,
-				properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
-		CSVSource<GithubRepositoryStatisticsEntity> csvExportDataSource = new CSVSource<GithubRepositoryStatisticsEntity>(properties.getProperty(EXPORT_CSV_FILE_KEY));
-		boolean importFromCsv = Boolean.parseBoolean(properties.getProperty(IMPORT_FROM_CSV, "false"));
-		CSVSource<GithubRepositoryStatisticsEntity> csvImportDataSource = null;
-		if (importFromCsv) {
-			csvImportDataSource = new CSVSource<GithubRepositoryStatisticsEntity>(properties.getProperty(IMPORT_CSV_FILE_KEY));
-		}
-
-		init(getProperties().getProperty(URL_KEY), GithubRepositoryStatisticsEntity.getTemplate(), influxDBSource, csvImportDataSource, csvExportDataSource, 0L);
-
+		init(getProperties().getProperty(URL_KEY), GithubRepositoryStatisticsEntity.getTemplate(), influxDB,  0L);
 	}
 
 	@Override
-	protected List<GithubRepositoryStatisticsEntity> getResultList(String jsonString) {
+	public List<GithubRepositoryStatisticsEntity> getResultList(String jsonString) {
 		System.out.println("Retrieving Github repositories statistics...");
 		List<GithubRepositoryStatisticsEntity> statistics = new ArrayList<GithubRepositoryStatisticsEntity>();
 		try {
-			long timestamp = System.currentTimeMillis();
-			Date roundedDate = DateUtils.truncate(new Date(timestamp), Calendar.DATE);
+			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+			long timestamp = DateUtils.truncate(cal,Calendar.DATE).getTimeInMillis();
 
 			JSONArray jsonArray = new JSONArray(jsonString);
 
@@ -58,7 +46,7 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 				int forks = Integer.parseInt(jsonObject.get("forks_count").toString());
 				int openIssues = Integer.parseInt(jsonObject.get("open_issues_count").toString());
 
-				GithubRepositoryStatisticsEntity entity = new GithubRepositoryStatisticsEntity(roundedDate.getTime(), repoName, size, stars, watchers, forks, openIssues);
+				GithubRepositoryStatisticsEntity entity = new GithubRepositoryStatisticsEntity(timestamp, repoName, size, stars, watchers, forks, openIssues);
 
 				statistics.add(entity);
 
@@ -80,18 +68,6 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 		if (!properties.contains(URL_KEY) && System.getenv(URL_KEY) != null) {
 			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
 		}
-
-		if (!properties.contains(EXPORT_CSV_FILE_KEY) && System.getenv(EXPORT_CSV_FILE_KEY) != null) {
-			properties.setProperty(EXPORT_CSV_FILE_KEY, System.getenv(EXPORT_CSV_FILE_KEY));
-		}
-
-		if (!properties.contains(IMPORT_FROM_CSV) && System.getenv(IMPORT_FROM_CSV) != null) {
-			properties.setProperty(IMPORT_FROM_CSV, System.getenv(IMPORT_FROM_CSV));
-		}
-		if (!properties.contains(IMPORT_CSV_FILE_KEY) && System.getenv(IMPORT_CSV_FILE_KEY) != null) {
-			properties.setProperty(IMPORT_CSV_FILE_KEY, System.getenv(IMPORT_CSV_FILE_KEY));
-		}
-
 	}
 
 	@Override
@@ -99,14 +75,6 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 		if (!properties.containsKey(URL_KEY)) {
 			throw new IllegalArgumentException("GitHub API URL not specified: " + URL_KEY);
 		}
-
-		if (!properties.containsKey(EXPORT_CSV_FILE_KEY)) {
-			throw new IllegalArgumentException("Property not specified: " + EXPORT_CSV_FILE_KEY);
-		}
-		if (Boolean.parseBoolean(properties.getProperty(IMPORT_FROM_CSV, "false")) && !properties.containsKey(IMPORT_CSV_FILE_KEY)) {
-			throw new IllegalArgumentException("Property not specified although enabled: " + IMPORT_CSV_FILE_KEY);
-		}
-
 	}
 
 }

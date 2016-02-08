@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import rocks.inspectit.statistics.entities.AbstractStatisticsEntity.Identifier;
 
 public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSource<T> {
 	private static final char CSV_SEPARATOR = ',';
+	private static final String COMMA_REPLACEMENT = "#*&";
 
 	private final String fileName;
 
@@ -31,7 +34,7 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 		this.fileName = fileName;
 	}
 
-	private String getCSVHeader(AbstractStatisticsEntity template) {
+	protected String getCSVHeader(AbstractStatisticsEntity template) {
 		String result = Constants.TIMESTAMP;
 		for (String keyName : template.getKeyNames()) {
 			result += CSV_SEPARATOR + keyName;
@@ -87,6 +90,9 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 			int startFieldsIdx = startKeysIdx + template.getKeyNames().length;
 			while (null != line) {
 				String[] values = line.split(String.valueOf(CSV_SEPARATOR));
+				for (int i = 0; i < values.length; i++) {
+					values[i] = values[i].replace(COMMA_REPLACEMENT, ",");
+				}
 				String[] keyValues = Arrays.copyOfRange(values, startKeysIdx, startFieldsIdx);
 				String[] fieldValues = Arrays.copyOfRange(values, startFieldsIdx, values.length);
 
@@ -110,12 +116,13 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 	public Map<String, Number> getAbsoluteCounts(long since, Identifier identifier, T template) {
 		List<T> all = load(template);
 		Map<String, Number> result = new HashMap<String, Number>();
+
 		for (T entity : all) {
-			if (entity.getTimestamp() >= since) {
+			if (entity.getTimestamp() > since && entity.getIdentifier().equals(identifier)) {
 				for (Entry<String, Object> entry : entity.getFieldValues().entrySet()) {
 					double sum = 0.0;
 					if (result.containsKey(entry.getKey())) {
-						sum += result.get(entry.getKey()).doubleValue();
+						sum = result.get(entry.getKey()).doubleValue();
 					}
 					if (entry.getValue() instanceof Number) {
 						sum += ((Number) entry.getValue()).doubleValue();
@@ -128,19 +135,24 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 		return result;
 	}
 
-	private String toCSVString(T entity) {
+	protected String toCSVString(T entity) {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append(entity.getTimestamp());
 
 		for (String key : entity.getKeyValuesList()) {
 			builder.append(CSV_SEPARATOR);
-			builder.append(key);
+			builder.append(key.replace(",", COMMA_REPLACEMENT));
 		}
 
 		for (Object field : entity.getFieldValuesList()) {
 			builder.append(CSV_SEPARATOR);
-			builder.append(field.toString());
+			if (field instanceof String) {
+				builder.append(field.toString().replace(",", COMMA_REPLACEMENT));
+			} else {
+				builder.append(field.toString());
+			}
+
 		}
 
 		return builder.toString();
@@ -148,8 +160,18 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 
 	@Override
 	public long getLatestTimestamp(T template) {
-		// TODO Auto-generated method stub
-		return 0;
+		List<T> all = load(template);
+		long max = Long.MIN_VALUE;
+		for (T element : all) {
+			if (element.getTimestamp() > max) {
+				max = element.getTimestamp();
+			}
+		}
+		return max;
+	}
+
+	public String getFileName() {
+		return fileName;
 	}
 
 }

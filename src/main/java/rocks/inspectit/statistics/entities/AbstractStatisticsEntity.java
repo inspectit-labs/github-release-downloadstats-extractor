@@ -1,6 +1,7 @@
 package rocks.inspectit.statistics.entities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ public abstract class AbstractStatisticsEntity {
 	public abstract Object[] getFieldValuesList();
 
 	public abstract void setFields(Map<String, Object> fieldValues);
-	
+
 	public String[] getKeyValuesList() {
 		return getIdentifier().getKeys().toArray(new String[0]);
 	}
@@ -82,8 +83,8 @@ public abstract class AbstractStatisticsEntity {
 	public Identifier getIdentifier() {
 		return identifier;
 	}
-	
-	protected int getIntValue(Object obj){
+
+	protected int getIntValue(Object obj) {
 		if (null == obj || !(obj instanceof Number || obj instanceof String)) {
 			throw new IllegalArgumentException("Invalid field value!");
 		}
@@ -95,8 +96,8 @@ public abstract class AbstractStatisticsEntity {
 			throw new IllegalArgumentException("Invalid field value!");
 		}
 	}
-	
-	protected double getDoubleValue(Object obj){
+
+	protected double getDoubleValue(Object obj) {
 		if (null == obj || !(obj instanceof Number || obj instanceof String)) {
 			throw new IllegalArgumentException("Invalid field value!");
 		}
@@ -120,10 +121,9 @@ public abstract class AbstractStatisticsEntity {
 		}
 		return result;
 	}
-	
-	
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -133,10 +133,12 @@ public abstract class AbstractStatisticsEntity {
 		result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
 		result = prime * result + ((measurementName == null) ? 0 : measurementName.hashCode());
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+		result = prime * result + Arrays.hashCode(getFieldValuesList());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -160,10 +162,10 @@ public abstract class AbstractStatisticsEntity {
 			return false;
 		if (timestamp != other.timestamp)
 			return false;
+		if (!Arrays.equals(getFieldValuesList(), other.getFieldValuesList()))
+			return false;
 		return true;
 	}
-
-
 
 	public static class Identifier {
 		private final List<String> keys;

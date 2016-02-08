@@ -10,13 +10,20 @@ import java.util.Properties;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.influxdb.InfluxDB;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
+import rocks.inspectit.statistics.IBackupImporter;
+import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
+import rocks.inspectit.statistics.entities.EventEntity;
+import rocks.inspectit.statistics.source.CSVFTPSource;
+import rocks.inspectit.statistics.source.CSVSource;
 import rocks.inspectit.statistics.source.IDataSource;
+import rocks.inspectit.statistics.source.InfluxDBSource;
 
-public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
+public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> implements IBackupImporter<T> {
 	/**
 	 * 5 hours time offset.
 	 */
@@ -24,9 +31,8 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	private final Properties properties;
 	private String apiUri;
 	private T template;
-	private IDataSource<T> influxDBSource;
-	private IDataSource<T> csvImportDataSource;
-	private IDataSource<T> csvExportDataSource;
+	protected IDataSource<T> influxDBSource;
+	protected IDataSource<T> csvFtpDataSource;
 	private long absoluteCountsSinceTime;
 
 	public AbstractExtractor(Properties properties) {
@@ -43,22 +49,26 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	 * @param csvExportDataSource
 	 * @param absoluteCountsSinceTime
 	 */
-	public void init(String apiUri, T template, IDataSource<T> influxDBSource, IDataSource<T> csvImportDataSource, IDataSource<T> csvExportDataSource, long absoluteCountsSinceTime) {
+	public void init(String apiUri, T template,InfluxDB influxDB, long absoluteCountsSinceTime) {
 		this.apiUri = apiUri;
 		this.template = template;
-		this.influxDBSource = influxDBSource;
-		this.csvImportDataSource = csvImportDataSource;
-		this.csvExportDataSource = csvExportDataSource;
+		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
+		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
 		this.absoluteCountsSinceTime = absoluteCountsSinceTime;
 	}
 
 	protected String getJSONString() {
-		ResteasyClient client = new ResteasyClientBuilder().build();
-		WebTarget target = client.target(apiUri);
-		Response response = target.request().header("User-Agent", "DownloadCounter").get();
-		String jsonString = response.readEntity(String.class);
-		response.close();
-		return jsonString;
+		if (null != apiUri) {
+			ResteasyClient client = new ResteasyClientBuilder().build();
+			WebTarget target = client.target(apiUri);
+			Response response = target.request().header("User-Agent", "DownloadCounter").get();
+			String jsonString = response.readEntity(String.class);
+			response.close();
+			return jsonString;
+		} else {
+			return null;
+		}
+
 	}
 
 	/**
@@ -66,34 +76,41 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	 * 
 	 * @throws IOException
 	 */
-	public void retrieveStatistics() throws IOException {
+	public List<T> retrieveStatistics() throws IOException {
+		return getResultList(getJSONString());
+	}
 
-		// import old data
-		if (null != csvImportDataSource) {
-			System.out.println("Importing Data from backup for " + template.getMeasurementName() + "...");
-			List<T> oldData = csvImportDataSource.load(template);
-			influxDBSource.store(oldData);
-			System.out.println("Backup imported.");
+	public void storeResultsToDatabase(final List<T> resultList) {
+		filterExistingEntries(resultList, influxDBSource);
+		calculateRelativeCounts(resultList, influxDBSource);
+
+		// store to database and csv
+		if (!resultList.isEmpty()) {
+			influxDBSource.store(resultList);
+		} else {
+			System.out.println("No new entries for " + template.getMeasurementName() + "!");
 		}
+	}
 
-		// get results
-		List<T> resultList = getResultList(getJSONString());
+	public void createBackup(final List<T> resultList) throws IOException {
+		System.out.println("Creating Backup for " + template.getMeasurementName());
+		
+		List<T> newList = new ArrayList<T>(resultList.size());
+		newList.addAll(resultList);
+		filterExistingEntries(newList, csvFtpDataSource);
+		calculateRelativeCounts(newList, csvFtpDataSource);
 
-		// filter already existing entries
-		long timestampThreshold = getLatestTimestamp();
-		List<T> filteredList = new ArrayList<T>();
-		for (T entity : resultList) {
-			if (entity.getTimestamp() > timestampThreshold + TIME_OFFSET) {
-				filteredList.add(entity);
-			}
-		}
-		resultList = filteredList;
+		csvFtpDataSource.store(newList);
 
+		System.out.println("Backup Succeeded");
+	}
+
+	protected void calculateRelativeCounts(final List<T> resultList, IDataSource<T> dataSource) {
 		// calculate relative counts
 		if (needsRelativationOfValues() && !resultList.isEmpty()) {
 			for (T entity : resultList) {
-				Map<String, Number> absoluteCounts = influxDBSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(), template);
-				if (null != absoluteCounts) {
+				Map<String, Number> absoluteCounts = dataSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(), template);
+				if (null != absoluteCounts && !absoluteCounts.isEmpty()) {
 					Map<String, Object> relativeCounts = new HashMap<String, Object>();
 					Map<String, Object> fieldValues = entity.getFieldValues();
 					for (String key : absoluteCounts.keySet()) {
@@ -103,19 +120,23 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 				}
 			}
 		}
-
-		// store to database and csv
-		if (!resultList.isEmpty()) {
-			influxDBSource.store(resultList);
-		} else {
-			System.out.println("No new entries for " + template.getMeasurementName() + "!");
-		}
-		csvExportDataSource.store(influxDBSource.load(template));
-
 	}
 
-	protected long getLatestTimestamp() {
-		return influxDBSource.getLatestTimestamp(template);
+	protected void filterExistingEntries(final List<T> resultList, IDataSource<T> dataSource) {
+		// filter already existing entries
+		long timestampThreshold = getLatestTimestamp(dataSource);
+		List<T> filteredList = new ArrayList<T>();
+		for (T entity : resultList) {
+			if (entity.getTimestamp() > timestampThreshold + TIME_OFFSET) {
+				filteredList.add(entity);
+			}
+		}
+		resultList.clear();
+		resultList.addAll(filteredList);
+	}
+
+	protected long getLatestTimestamp(IDataSource<T> dataSource) {
+		return dataSource.getLatestTimestamp(template);
 	}
 
 	/**
@@ -125,7 +146,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 	 *            the retrieved jsonString
 	 * @return the resultList
 	 */
-	protected abstract List<T> getResultList(String jsonString);
+	public abstract List<T> getResultList(String jsonString);
 
 	protected abstract boolean needsRelativationOfValues();
 
@@ -140,4 +161,11 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> {
 		return properties;
 	}
 
+	@Override
+	public void importBackup() {
+		System.out.println("Importing Data from backup for " + template.getMeasurementName() + "...");
+		List<T> oldData = csvFtpDataSource.load(template);
+		influxDBSource.store(oldData);
+		System.out.println("Backup imported.");
+	}
 }
