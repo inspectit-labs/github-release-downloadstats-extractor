@@ -3,16 +3,16 @@ package rocks.inspectit.statistics.entities;
 import java.util.Map;
 
 public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String GITHUB_REPOSITORY_MEASUREMENT = "github_repositories";
-	private static final String GITHUB_REPOSITORY_SIZE_FIELD = "size";
-	private static final String GITHUB_REPOSITORY_STARS_FIELD = "star_count";
-	private static final String GITHUB_REPOSITORY_WATCHERS_FIELD = "watcher_count";
-	private static final String GITHUB_REPOSITORY_FORKS_FIELD = "fork_count";
-	private static final String GITHUB_REPOSITORY_OPEN_ISSUE_FIELD = "open_issue_count";
-	private static final String GITHUB_REPOSITORY_NAME_TAG = "repository_name";
+	public static final String GITHUB_REPOSITORY_MEASUREMENT = "github_repositories";
+	public static final String GITHUB_REPOSITORY_SIZE_FIELD = "size";
+	public static final String GITHUB_REPOSITORY_STARS_FIELD = "star_count";
+	public static final String GITHUB_REPOSITORY_WATCHERS_FIELD = "watcher_count";
+	public static final String GITHUB_REPOSITORY_FORKS_FIELD = "fork_count";
+	public static final String GITHUB_REPOSITORY_OPEN_ISSUE_FIELD = "open_issue_count";
+	public static final String GITHUB_REPOSITORY_NAME_TAG = "repository_name";
 
-	private static final String[] KEY_NAMES = new String[] { GITHUB_REPOSITORY_NAME_TAG };
-	private static final String[] FIELD_NAMES = new String[] { GITHUB_REPOSITORY_SIZE_FIELD, GITHUB_REPOSITORY_STARS_FIELD, GITHUB_REPOSITORY_WATCHERS_FIELD, GITHUB_REPOSITORY_FORKS_FIELD,
+	public static final String[] KEY_NAMES = new String[] { GITHUB_REPOSITORY_NAME_TAG };
+	public static final String[] FIELD_NAMES = new String[] { GITHUB_REPOSITORY_SIZE_FIELD, GITHUB_REPOSITORY_STARS_FIELD, GITHUB_REPOSITORY_WATCHERS_FIELD, GITHUB_REPOSITORY_FORKS_FIELD,
 			GITHUB_REPOSITORY_OPEN_ISSUE_FIELD };
 
 	private static GithubRepositoryStatisticsEntity template;

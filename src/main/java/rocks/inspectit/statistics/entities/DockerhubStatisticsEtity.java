@@ -5,13 +5,13 @@ import java.util.Map;
 import rocks.inspectit.statistics.Constants;
 
 public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
-	private static final String DOCKER_HUB_MEASUREMENT = "docker_hub";
-	private static final String DOCKER_HUB_PULL_COUNT_FIELD = "pull_count";
-	private static final String DOCKER_HUB_STAR_COUNT_FIELD = "star_count";
-	private static final String DOCKER_HUB_NAME_TAG = "repository_name";
+	public static final String DOCKER_HUB_MEASUREMENT = "docker_hub";
+	public static final String DOCKER_HUB_PULL_COUNT_FIELD = "pull_count";
+	public static final String DOCKER_HUB_STAR_COUNT_FIELD = "star_count";
+	public static final String DOCKER_HUB_NAME_TAG = "repository_name";
 	
-	private static final String[] KEY_NAMES = new String[] { DOCKER_HUB_NAME_TAG };
-	private static final String[] FIELD_NAMES = new String[] { DOCKER_HUB_PULL_COUNT_FIELD, DOCKER_HUB_STAR_COUNT_FIELD };
+	public static final String[] KEY_NAMES = new String[] { DOCKER_HUB_NAME_TAG };
+	public static final String[] FIELD_NAMES = new String[] { DOCKER_HUB_PULL_COUNT_FIELD, DOCKER_HUB_STAR_COUNT_FIELD };
 
 	private static DockerhubStatisticsEtity template;
 

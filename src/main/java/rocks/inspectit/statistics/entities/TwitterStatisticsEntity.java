@@ -3,17 +3,17 @@ package rocks.inspectit.statistics.entities;
 import java.util.Map;
 
 public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String TWITTER_MEASUREMENT = "twitter";
-	private static final String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
-	private static final String TWITTER_RETWEETS_FIELD = "retweets";
-	private static final String TWITTER_RETWEETS_OF_OWN_FIELD = "retweets_own_tweets";
-	private static final String TWITTER_MENTIONS_FIELD = "mentions";
-	private static final String TWITTER_LIKES_FIELD = "likes";
-	private static final String TWITTER_MENTION_LIKES_FIELD = "mention_likes";
-	private static final String TWITTER_FOLLOWERS_FIELD = "followers";
+	public static final String TWITTER_MEASUREMENT = "twitter";
+	public static final String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
+	public static final String TWITTER_RETWEETS_FIELD = "retweets";
+	public static final String TWITTER_RETWEETS_OF_OWN_FIELD = "retweets_own_tweets";
+	public static final String TWITTER_MENTIONS_FIELD = "mentions";
+	public static final String TWITTER_LIKES_FIELD = "likes";
+	public static final String TWITTER_MENTION_LIKES_FIELD = "mention_likes";
+	public static final String TWITTER_FOLLOWERS_FIELD = "followers";
 
-	private static final String[] KEY_NAMES = new String[0];
-	private static final String[] FIELD_NAMES = new String[] { TWITTER_OWN_TWEETS_FIELD, TWITTER_RETWEETS_FIELD, TWITTER_RETWEETS_OF_OWN_FIELD, TWITTER_MENTIONS_FIELD, TWITTER_LIKES_FIELD,
+	public static final String[] KEY_NAMES = new String[0];
+	public static final String[] FIELD_NAMES = new String[] { TWITTER_OWN_TWEETS_FIELD, TWITTER_RETWEETS_FIELD, TWITTER_RETWEETS_OF_OWN_FIELD, TWITTER_MENTIONS_FIELD, TWITTER_LIKES_FIELD,
 			TWITTER_MENTION_LIKES_FIELD, TWITTER_FOLLOWERS_FIELD };
 
 	private static TwitterStatisticsEntity template;

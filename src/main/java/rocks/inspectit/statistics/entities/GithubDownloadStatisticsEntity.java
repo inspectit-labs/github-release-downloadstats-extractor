@@ -5,18 +5,18 @@ import java.util.Map;
 import rocks.inspectit.statistics.Constants;
 
 public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String GITHUB_DOWNLOADS_MEASUREMENT = "downloads";
-	private static final String GITHUB_COUNT_FIELD = "count";
-	private static final String GITHUB_MAJOR_VERSION_TAG = "MajorVersion";
-	private static final String GITHUB_MINOR_VERSION_TAG = "MinorVersion";
-	private static final String GITHUB_BUILD_NR_TAG = "BuildNr";
-	private static final String GITHUB_ARTIFACT_TAG = "Artifact";
-	private static final String GITHUB_OS_TAG = "OS";
-	private static final String GITHUB_ARCHITECTURE_TAG = "Architecture";
+	public static final String GITHUB_DOWNLOADS_MEASUREMENT = "downloads";
+	public static final String GITHUB_COUNT_FIELD = "count";
+	public static final String GITHUB_MAJOR_VERSION_TAG = "MajorVersion";
+	public static final String GITHUB_MINOR_VERSION_TAG = "MinorVersion";
+	public static final String GITHUB_BUILD_NR_TAG = "BuildNr";
+	public static final String GITHUB_ARTIFACT_TAG = "Artifact";
+	public static final String GITHUB_OS_TAG = "OS";
+	public static final String GITHUB_ARCHITECTURE_TAG = "Architecture";
 	
-	private static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG,
+	public static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG,
 			GITHUB_MINOR_VERSION_TAG, GITHUB_BUILD_NR_TAG };
-	private static final String[] FIELD_NAMES = new String[] { GITHUB_COUNT_FIELD };
+	public static final String[] FIELD_NAMES = new String[] { GITHUB_COUNT_FIELD };
 
 	private static GithubDownloadStatisticsEntity template;
 

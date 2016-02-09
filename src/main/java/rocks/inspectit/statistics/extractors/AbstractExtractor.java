@@ -29,7 +29,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 */
 	private static final long TIME_OFFSET = 1000L * 60 * 60 * 20;
 	private final Properties properties;
-	private String apiUri;
 	private T template;
 	protected IDataSource<T> influxDBSource;
 	protected IDataSource<T> csvFtpDataSource;
@@ -49,15 +48,14 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * @param csvExportDataSource
 	 * @param absoluteCountsSinceTime
 	 */
-	public void init(String apiUri, T template,InfluxDB influxDB, long absoluteCountsSinceTime) {
-		this.apiUri = apiUri;
+	public void init(T template,InfluxDB influxDB, long absoluteCountsSinceTime) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
 		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
 		this.absoluteCountsSinceTime = absoluteCountsSinceTime;
 	}
 
-	protected String getJSONString() {
+	protected String getJSONString(String apiUri) {
 		if (null != apiUri) {
 			ResteasyClient client = new ResteasyClientBuilder().build();
 			WebTarget target = client.target(apiUri);
@@ -69,15 +67,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 			return null;
 		}
 
-	}
-
-	/**
-	 * Retrieves and stores statistics.
-	 * 
-	 * @throws IOException
-	 */
-	public List<T> retrieveStatistics() throws IOException {
-		return getResultList(getJSONString());
 	}
 
 	public void storeResultsToDatabase(final List<T> resultList) {
@@ -146,7 +135,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 *            the retrieved jsonString
 	 * @return the resultList
 	 */
-	public abstract List<T> getResultList(String jsonString);
+	public abstract List<T> getResultList();
 
 	protected abstract boolean needsRelativationOfValues();
 
@@ -154,6 +143,10 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 
 	protected abstract void checkProperties(Properties properties);
 
+	public T getTemplate(){
+		return template;
+	}
+	
 	/**
 	 * @return the properties
 	 */

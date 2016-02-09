@@ -3,15 +3,15 @@ package rocks.inspectit.statistics.entities;
 import java.util.Map;
 
 public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
-	private static final String GITHUB_TRAFFIC_MEASUREMENT = "github_traffic";
-	private static final String GITHUB_TRAFFIC_VISITORS_FIELD = "visitors_count";
-	private static final String GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD = "unique_visitors_count";
-	private static final String GITHUB_TRAFFIC_PERCENTAGE_FIELD = "percentage_visitors";
-	private static final String GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD = "percentage_unique";
-	private static final String GITHUB_TRAFFIC_REFERRING_SITE_TAG = "referring_site";
+	public static final String GITHUB_TRAFFIC_MEASUREMENT = "github_traffic";
+	public static final String GITHUB_TRAFFIC_VISITORS_FIELD = "visitors_count";
+	public static final String GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD = "unique_visitors_count";
+	public static final String GITHUB_TRAFFIC_PERCENTAGE_FIELD = "percentage_visitors";
+	public static final String GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD = "percentage_unique";
+	public static final String GITHUB_TRAFFIC_REFERRING_SITE_TAG = "referring_site";
 
-	private static final String[] KEY_NAMES = new String[] { GITHUB_TRAFFIC_REFERRING_SITE_TAG };
-	private static final String[] FIELD_NAMES = new String[] { GITHUB_TRAFFIC_VISITORS_FIELD, GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD, GITHUB_TRAFFIC_PERCENTAGE_FIELD,
+	public static final String[] KEY_NAMES = new String[] { GITHUB_TRAFFIC_REFERRING_SITE_TAG };
+	public static final String[] FIELD_NAMES = new String[] { GITHUB_TRAFFIC_VISITORS_FIELD, GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD, GITHUB_TRAFFIC_PERCENTAGE_FIELD,
 			GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD };
 
 	private static GithubTrafficStatisticsEntity template;

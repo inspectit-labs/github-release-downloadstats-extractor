@@ -130,7 +130,7 @@ public class CSVFTPSource<T extends AbstractStatisticsEntity> extends CSVSource<
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream))) {
 				List<T> resultList = new ArrayList<T>();
 				String line = reader.readLine();
-				if (line.equals(getCSVHeader(template))) {
+				if (null != line && line.equals(getCSVHeader(template))) {
 					line = reader.readLine();
 				}
 				int startKeysIdx = 1;

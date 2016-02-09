@@ -21,7 +21,7 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 
 	public GithubDownloadsStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(getProperties().getProperty(URL_KEY), GithubDownloadStatisticsEntity.getTemplate(), influxDB, Constants.GITHUB_DATA_SINCE_TIMESTAMP);
+		init(GithubDownloadStatisticsEntity.getTemplate(), influxDB, Constants.GITHUB_DATA_SINCE_TIMESTAMP);
 	}
 
 	@Override
@@ -45,8 +45,9 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 	}
 
 	@Override
-	public List<GithubDownloadStatisticsEntity> getResultList(String jsonString) {
+	public List<GithubDownloadStatisticsEntity> getResultList() {
 		System.out.println("Retrieving Github download statistics...");
+		String jsonString = getJSONString(getProperties().getProperty(URL_KEY));
 		List<GithubDownloadStatisticsEntity> statistics = new ArrayList<GithubDownloadStatisticsEntity>();
 		try {
 			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

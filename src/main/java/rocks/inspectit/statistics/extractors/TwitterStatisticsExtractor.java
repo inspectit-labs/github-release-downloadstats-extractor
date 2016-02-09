@@ -29,11 +29,11 @@ public class TwitterStatisticsExtractor extends AbstractExtractor<TwitterStatist
 
 	public TwitterStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(null, TwitterStatisticsEntity.getTemplate(), influxDB, 0L);
+		init(TwitterStatisticsEntity.getTemplate(), influxDB, 0L);
 	}
 
 	@Override
-	public List<TwitterStatisticsEntity> getResultList(String jsonString) {
+	public List<TwitterStatisticsEntity> getResultList() {
 		System.out.println("Retrieving Twitter statistics...");
 		Twitter twitter = TwitterFactory.getSingleton();
 		AccessToken accessToken = new AccessToken(getProperties().getProperty(TOKEN_KEY), getProperties().getProperty(TOKEN_SECRET_KEY));
@@ -115,11 +115,6 @@ public class TwitterStatisticsExtractor extends AbstractExtractor<TwitterStatist
 		return true;
 	}
 
-	@Override
-	protected String getJSONString() {
-		// not required here
-		return null;
-	}
 
 	@Override
 	protected void initProperties(Properties properties) {

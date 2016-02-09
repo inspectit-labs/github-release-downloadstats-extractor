@@ -64,12 +64,13 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 
 	public GithubTrafficStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(getProperties().getProperty(URL_KEY), GithubTrafficStatisticsEntity.getTemplate(), influxDB, 0L);
+		init(GithubTrafficStatisticsEntity.getTemplate(), influxDB, 0L);
 	}
 
 	@Override
-	public List<GithubTrafficStatisticsEntity> getResultList(String jsonString) {
+	public List<GithubTrafficStatisticsEntity> getResultList() {
 		System.out.println("Retrieving Github Traffic statistics...");
+		String jsonString = getJSONString(getProperties().getProperty(URL_KEY));
 		List<GithubTrafficStatisticsEntity> statistics = new ArrayList<GithubTrafficStatisticsEntity>();
 		try {
 

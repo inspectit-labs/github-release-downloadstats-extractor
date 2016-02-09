@@ -13,21 +13,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.DockerhubStatisticsEtity;
-import rocks.inspectit.statistics.source.InfluxDBSource;
 
 public class DockerhubStatisticsExtractor extends AbstractExtractor<DockerhubStatisticsEtity> {
 	private static final String URL_KEY = "dockerhub.api.url";
 
 	public DockerhubStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(getProperties().getProperty(URL_KEY), DockerhubStatisticsEtity.getTemplate(), influxDB, 0L);
+		init(DockerhubStatisticsEtity.getTemplate(), influxDB, 0L);
 	}
 
 	@Override
-	public List<DockerhubStatisticsEtity> getResultList(String jsonString) {
+	public List<DockerhubStatisticsEtity> getResultList() {
 		System.out.println("Retrieving Docker Hub statistics...");
+		String jsonString = getJSONString(getProperties().getProperty(URL_KEY));
 		List<DockerhubStatisticsEtity> statistics = new ArrayList<DockerhubStatisticsEtity>();
 		try {
 			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

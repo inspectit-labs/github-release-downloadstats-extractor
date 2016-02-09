@@ -16,6 +16,7 @@ import rocks.inspectit.statistics.extractors.EventsExtractor;
 import rocks.inspectit.statistics.extractors.GithubDownloadsStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubRepositoryStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubTrafficStatisticsExtractor;
+import rocks.inspectit.statistics.extractors.HomepageStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.TwitterStatisticsExtractor;
 
 public class StatisticsExtractor {
@@ -78,36 +79,31 @@ public class StatisticsExtractor {
 		GithubRepositoryStatisticsExtractor githubRepositoryExtractor = new GithubRepositoryStatisticsExtractor(properties, influx);
 		TwitterStatisticsExtractor twitterExtractor = new TwitterStatisticsExtractor(properties, influx);
 		EventsExtractor eventsExtractor = new EventsExtractor(properties, influx);
+		HomepageStatisticsExtractor homepageExtractor = new HomepageStatisticsExtractor(properties, influx);
 
-		retrieveStatistics(eventsExtractor, githubDownloadsExtractor, dockerHubExtractor, githubTrafficExtractor, githubRepositoryExtractor, twitterExtractor);
+		retrieveStatistics(eventsExtractor, githubDownloadsExtractor, dockerHubExtractor, githubTrafficExtractor, githubRepositoryExtractor, twitterExtractor, homepageExtractor);
 
-		// try {
-		// githubDownloadsExtractor.retrieveStatistics();
-		// githubTrafficExtractor.retrieveStatistics();
-		// githubRepositoryExtractor.retrieveStatistics();
-		// dockerHubExtractor.retrieveStatistics();
-		// twitterExtractor.retrieveStatistics();
-		//
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// System.exit(-1);
-		// }
 	}
 
 	private static void retrieveStatistics(AbstractExtractor<?>... extractors) {
 		for (AbstractExtractor<?> extractor : extractors) {
-			try {
-				retrieveStatistics(extractor);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			retrieveStatistics(extractor);
 		}
 	}
 
-	private static <T extends AbstractStatisticsEntity> void retrieveStatistics(AbstractExtractor<T> extractor) throws IOException {
-		List<T> results = extractor.retrieveStatistics();
-		extractor.createBackup(results);
-		extractor.storeResultsToDatabase(results);
+	private static <T extends AbstractStatisticsEntity> void retrieveStatistics(AbstractExtractor<T> extractor) {
+		try {
+			List<T> results = extractor.getResultList();
+			if (!results.isEmpty()) {
+				extractor.createBackup(results);
+				extractor.storeResultsToDatabase(results);
+			} else {
+				System.out.println("No new entries for " + extractor.getTemplate().getMeasurementName());
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

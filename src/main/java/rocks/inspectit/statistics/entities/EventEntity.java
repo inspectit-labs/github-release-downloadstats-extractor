@@ -3,15 +3,15 @@ package rocks.inspectit.statistics.entities;
 import java.util.Map;
 
 public class EventEntity extends AbstractStatisticsEntity {
-	private static final String EVENTS_MEASUREMENT = "events";
-	private static final String EVENTS_TITLE_FIELD = "title";
-	private static final String EVENTS_DESCRIPTION_FIELD = "description";
-	private static final String EVENTS_ATTENDEES_FIELD = "attendees";
-	private static final String EVENTS_LEADS_FIELD = "leads";
-	private static final String EVENTS_TYPE_TAG = "type";
+	public static final String EVENTS_MEASUREMENT = "events";
+	public static final String EVENTS_TITLE_FIELD = "title";
+	public static final String EVENTS_DESCRIPTION_FIELD = "description";
+	public static final String EVENTS_ATTENDEES_FIELD = "attendees";
+	public static final String EVENTS_LEADS_FIELD = "leads";
+	public static final String EVENTS_TYPE_TAG = "type";
 
-	private static final String[] KEY_NAMES = new String[] { EVENTS_TYPE_TAG };
-	private static final String[] FIELD_NAMES = new String[] { EVENTS_TITLE_FIELD, EVENTS_DESCRIPTION_FIELD, EVENTS_ATTENDEES_FIELD, EVENTS_LEADS_FIELD };
+	public static final String[] KEY_NAMES = new String[] { EVENTS_TYPE_TAG };
+	public static final String[] FIELD_NAMES = new String[] { EVENTS_TITLE_FIELD, EVENTS_DESCRIPTION_FIELD, EVENTS_ATTENDEES_FIELD, EVENTS_LEADS_FIELD };
 
 	private String title;
 	private String description;

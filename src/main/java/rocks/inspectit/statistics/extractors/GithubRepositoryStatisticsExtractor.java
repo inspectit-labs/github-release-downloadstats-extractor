@@ -24,12 +24,13 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 
 	public GithubRepositoryStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(getProperties().getProperty(URL_KEY), GithubRepositoryStatisticsEntity.getTemplate(), influxDB,  0L);
+		init(GithubRepositoryStatisticsEntity.getTemplate(), influxDB,  0L);
 	}
 
 	@Override
-	public List<GithubRepositoryStatisticsEntity> getResultList(String jsonString) {
+	public List<GithubRepositoryStatisticsEntity> getResultList() {
 		System.out.println("Retrieving Github repositories statistics...");
+		String jsonString = getJSONString(getProperties().getProperty(URL_KEY));
 		List<GithubRepositoryStatisticsEntity> statistics = new ArrayList<GithubRepositoryStatisticsEntity>();
 		try {
 			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
