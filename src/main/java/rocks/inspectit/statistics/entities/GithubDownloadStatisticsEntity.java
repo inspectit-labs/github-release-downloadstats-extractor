@@ -2,7 +2,7 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
-import rocks.inspectit.statistics.Constants;
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String GITHUB_DOWNLOADS_MEASUREMENT = "downloads";
@@ -13,9 +13,8 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String GITHUB_ARTIFACT_TAG = "Artifact";
 	public static final String GITHUB_OS_TAG = "OS";
 	public static final String GITHUB_ARCHITECTURE_TAG = "Architecture";
-	
-	public static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG,
-			GITHUB_MINOR_VERSION_TAG, GITHUB_BUILD_NR_TAG };
+
+	public static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG, GITHUB_MINOR_VERSION_TAG, GITHUB_BUILD_NR_TAG };
 	public static final String[] FIELD_NAMES = new String[] { GITHUB_COUNT_FIELD };
 
 	private static GithubDownloadStatisticsEntity template;
@@ -27,7 +26,8 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	private int downloadCount;
+	@EntityField(name = GITHUB_COUNT_FIELD, metricType = MetricType.RELATIVE)
+	protected int downloadCount;
 
 	private GithubDownloadStatisticsEntity() {
 		super(GITHUB_DOWNLOADS_MEASUREMENT, 0L, null);
@@ -77,12 +77,6 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	 */
 	public void setDownloadCount(int downloadCount) {
 		this.downloadCount = downloadCount;
-	}
-
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		downloadCount = getIntValue(fieldValues.get(GITHUB_COUNT_FIELD));
-
 	}
 
 }

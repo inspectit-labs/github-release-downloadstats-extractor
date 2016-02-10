@@ -2,6 +2,8 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
+
 public class WebPageStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String WEBPAGE_TRAFFIC_MEASUREMENT = "website_traffic";
 	public static final String WEBPAGE_TRAFFIC_USERS_FIELD = "num_users";
@@ -28,12 +30,18 @@ public class WebPageStatisticsEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	private int users;
-	private int newUsers;
-	private int sessions;
-	private int bounces;
-	private double bounceRate;
-	private double avgSessionDuration;
+	@EntityField(name = WEBPAGE_TRAFFIC_USERS_FIELD, metricType = MetricType.RELATIVE)
+	protected  int users;
+	@EntityField(name = WEBPAGE_TRAFFIC_NEW_USERS_FIELD, metricType = MetricType.RELATIVE)
+	protected  int newUsers;
+	@EntityField(name = WEBPAGE_TRAFFIC_SESSIONS_FIELD, metricType = MetricType.RELATIVE)
+	protected  int sessions;
+	@EntityField(name = WEBPAGE_TRAFFIC_BOUNCES_FIELD, metricType = MetricType.RELATIVE)
+	protected  int bounces;
+	@EntityField(name = WEBPAGE_TRAFFIC_BOUNCE_RATE_FIELD, metricType = MetricType.RELATIVE)
+	protected  double bounceRate;
+	@EntityField(name = WEBPAGE_TRAFFIC_AVG_SESSION_DURATION_FIELD, metricType = MetricType.RELATIVE)
+	protected  double avgSessionDuration;
 
 	private WebPageStatisticsEntity() {
 		super(WEBPAGE_TRAFFIC_MEASUREMENT, 0L, null);
@@ -78,16 +86,6 @@ public class WebPageStatisticsEntity extends AbstractStatisticsEntity {
 	@Override
 	public Object[] getFieldValuesList() {
 		return new Object[] { users, newUsers, sessions, bounces, bounceRate, avgSessionDuration };
-	}
-
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		users = getIntValue(fieldValues.get(WEBPAGE_TRAFFIC_USERS_FIELD));
-		newUsers = getIntValue(fieldValues.get(WEBPAGE_TRAFFIC_NEW_USERS_FIELD));
-		sessions = getIntValue(fieldValues.get(WEBPAGE_TRAFFIC_SESSIONS_FIELD));
-		bounces = getIntValue(fieldValues.get(WEBPAGE_TRAFFIC_BOUNCES_FIELD));
-		bounceRate = getDoubleValue(fieldValues.get(WEBPAGE_TRAFFIC_BOUNCE_RATE_FIELD));
-		avgSessionDuration = getDoubleValue(fieldValues.get(WEBPAGE_TRAFFIC_AVG_SESSION_DURATION_FIELD));
 	}
 
 	/**
@@ -179,5 +177,4 @@ public class WebPageStatisticsEntity extends AbstractStatisticsEntity {
 	public void setAvgSessionDuration(double avgSessionDuration) {
 		this.avgSessionDuration = avgSessionDuration;
 	}
-
 }

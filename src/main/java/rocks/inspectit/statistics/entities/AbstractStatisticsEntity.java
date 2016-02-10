@@ -1,11 +1,16 @@
 package rocks.inspectit.statistics.entities;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public abstract class AbstractStatisticsEntity {
 
@@ -25,7 +30,73 @@ public abstract class AbstractStatisticsEntity {
 
 	public abstract Object[] getFieldValuesList();
 
-	public abstract void setFields(Map<String, Object> fieldValues);
+	public void setFields(Map<String, Object> fieldValues) {
+		for (Field field : this.getClass().getDeclaredFields()) {
+			EntityField annotation = field.getAnnotation(EntityField.class);
+			if (null != annotation && fieldValues.containsKey(annotation.name())) {
+				Object value;
+				if (field.getType().isAssignableFrom(int.class)) {
+					value = getIntValue(fieldValues.get(annotation.name()));
+				} else if (field.getType().isAssignableFrom(double.class)) {
+					value = getDoubleValue(fieldValues.get(annotation.name()));
+				} else {
+					value = fieldValues.get(annotation.name()).toString();
+				}
+				try {
+					field.set(this, value);
+				} catch (IllegalAccessException | IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	public boolean hasNewInformation(AbstractStatisticsEntity before) {
+		return !allRelativeMetricsZero() || !allAbsolutesAsBefore(before);
+	}
+
+	private boolean allRelativeMetricsZero() {
+		try {
+			for (Field field : this.getClass().getDeclaredFields()) {
+				EntityField annotation = field.getAnnotation(EntityField.class);
+				if (null != annotation && annotation.metricType().equals(MetricType.RELATIVE)) {
+					if (field.getType().isAssignableFrom(int.class)) {
+						if (field.getInt(this) != 0) {
+							return false;
+						}
+					} else if (field.getType().isAssignableFrom(double.class)) {
+						if (field.getDouble(this) != 0.0) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+			}
+
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private boolean allAbsolutesAsBefore(AbstractStatisticsEntity before) {
+		try {
+			for (Field field : this.getClass().getDeclaredFields()) {
+				EntityField annotation = field.getAnnotation(EntityField.class);
+				if(field.getType().isAssignableFrom(String.class)){
+					return false;
+				}
+				if (null != annotation && annotation.metricType().equals(MetricType.ABSOLUTE) && !field.get(this).equals(field.get(before))) {
+					return false;
+				}
+			}
+
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public String[] getKeyValuesList() {
 		return getIdentifier().getKeys().toArray(new String[0]);
@@ -52,6 +123,27 @@ public abstract class AbstractStatisticsEntity {
 			i++;
 		}
 
+		return result;
+	}
+
+	public Set<String> getFieldNames(MetricType type) {
+		Set<String> names = new HashSet<String>();
+		for (Field field : this.getClass().getDeclaredFields()) {
+			EntityField annotation = field.getAnnotation(EntityField.class);
+			if (null != annotation && annotation.metricType().equals(type)) {
+				names.add(annotation.name());
+			}
+		}
+		return names;
+	}
+
+	public Map<String, Object> getFieldValues(MetricType type) {
+		Map<String, Object> allValues = getFieldValues();
+		Set<String> names = getFieldNames(type);
+		Map<String, Object> result = new HashMap<String, Object>();
+		for (String name : names) {
+			result.put(name, allValues.get(name));
+		}
 		return result;
 	}
 

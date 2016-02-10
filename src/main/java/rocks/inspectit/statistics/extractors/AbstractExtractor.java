@@ -17,9 +17,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import rocks.inspectit.statistics.IBackupImporter;
 import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
-import rocks.inspectit.statistics.entities.EventEntity;
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 import rocks.inspectit.statistics.source.CSVFTPSource;
-import rocks.inspectit.statistics.source.CSVSource;
 import rocks.inspectit.statistics.source.IDataSource;
 import rocks.inspectit.statistics.source.InfluxDBSource;
 
@@ -48,10 +47,11 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * @param csvExportDataSource
 	 * @param absoluteCountsSinceTime
 	 */
-	public void init(T template,InfluxDB influxDB, long absoluteCountsSinceTime) {
+	public void init(T template, InfluxDB influxDB, long absoluteCountsSinceTime) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
-		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
+		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(
+				StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
 		this.absoluteCountsSinceTime = absoluteCountsSinceTime;
 	}
 
@@ -70,10 +70,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	}
 
 	public void storeResultsToDatabase(final List<T> resultList) {
-		filterExistingEntries(resultList, influxDBSource);
-		calculateRelativeCounts(resultList, influxDBSource);
-
-		// store to database and csv
 		if (!resultList.isEmpty()) {
 			influxDBSource.store(resultList);
 		} else {
@@ -81,15 +77,32 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		}
 	}
 
+	public void preprocessData(final List<T> resultList) {
+		if (!resultList.isEmpty()) {
+			filterExistingEntries(resultList, csvFtpDataSource);
+			calculateRelativeCounts(resultList, csvFtpDataSource);
+			filterEmptyEntries(resultList, csvFtpDataSource);
+		}
+	}
+
+	private void filterEmptyEntries(final List<T> resultList, IDataSource<T> dataSource) {
+		if (!resultList.isEmpty()) {
+			List<T> newList = new ArrayList<T>();
+			for (T entity : resultList) {
+				T before = dataSource.getLast(entity.getIdentifier(), template);
+				if (before == null || entity.hasNewInformation(before)) {
+					newList.add(entity);
+				}
+			}
+			resultList.clear();
+			resultList.addAll(newList);
+		}
+	}
+
 	public void createBackup(final List<T> resultList) throws IOException {
 		System.out.println("Creating Backup for " + template.getMeasurementName());
-		
-		List<T> newList = new ArrayList<T>(resultList.size());
-		newList.addAll(resultList);
-		filterExistingEntries(newList, csvFtpDataSource);
-		calculateRelativeCounts(newList, csvFtpDataSource);
 
-		csvFtpDataSource.store(newList);
+		csvFtpDataSource.store(resultList);
 
 		System.out.println("Backup Succeeded");
 	}
@@ -101,7 +114,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 				Map<String, Number> absoluteCounts = dataSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(), template);
 				if (null != absoluteCounts && !absoluteCounts.isEmpty()) {
 					Map<String, Object> relativeCounts = new HashMap<String, Object>();
-					Map<String, Object> fieldValues = entity.getFieldValues();
+					Map<String, Object> fieldValues = entity.getFieldValues(MetricType.RELATIVE);
 					for (String key : absoluteCounts.keySet()) {
 						relativeCounts.put(key, ((Number) fieldValues.get(key)).doubleValue() - absoluteCounts.get(key).doubleValue());
 					}
@@ -143,10 +156,10 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 
 	protected abstract void checkProperties(Properties properties);
 
-	public T getTemplate(){
+	public T getTemplate() {
 		return template;
 	}
-	
+
 	/**
 	 * @return the properties
 	 */

@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +18,7 @@ import java.util.Map.Entry;
 import rocks.inspectit.statistics.Constants;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity.Identifier;
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSource<T> {
 	private static final char CSV_SEPARATOR = ',';
@@ -119,7 +118,7 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 
 		for (T entity : all) {
 			if (entity.getTimestamp() > since && entity.getIdentifier().equals(identifier)) {
-				for (Entry<String, Object> entry : entity.getFieldValues().entrySet()) {
+				for (Entry<String, Object> entry : entity.getFieldValues(MetricType.RELATIVE).entrySet()) {
 					double sum = 0.0;
 					if (result.containsKey(entry.getKey())) {
 						sum = result.get(entry.getKey()).doubleValue();
@@ -172,6 +171,24 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 
 	public String getFileName() {
 		return fileName;
+	}
+
+	@Override
+	public T getLast(Identifier identifier, T template) {
+		List<T> all = load(template);
+		T last = null;
+		for (T entity : all) {
+			if (entity.getIdentifier().equals(identifier)) {
+				if (last == null) {
+					last = entity;
+				}
+				if (entity.getTimestamp() > last.getTimestamp()) {
+					last = entity;
+				}
+			}
+
+		}
+		return last;
 	}
 
 }

@@ -82,7 +82,6 @@ public class StatisticsExtractor {
 		HomepageStatisticsExtractor homepageExtractor = new HomepageStatisticsExtractor(properties, influx);
 
 		retrieveStatistics(eventsExtractor, githubDownloadsExtractor, dockerHubExtractor, githubTrafficExtractor, githubRepositoryExtractor, twitterExtractor, homepageExtractor);
-
 	}
 
 	private static void retrieveStatistics(AbstractExtractor<?>... extractors) {
@@ -94,6 +93,7 @@ public class StatisticsExtractor {
 	private static <T extends AbstractStatisticsEntity> void retrieveStatistics(AbstractExtractor<T> extractor) {
 		try {
 			List<T> results = extractor.getResultList();
+			extractor.preprocessData(results);
 			if (!results.isEmpty()) {
 				extractor.createBackup(results);
 				extractor.storeResultsToDatabase(results);
@@ -101,7 +101,7 @@ public class StatisticsExtractor {
 				System.out.println("No new entries for " + extractor.getTemplate().getMeasurementName());
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

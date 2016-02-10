@@ -2,6 +2,8 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
+
 public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String GITHUB_REPOSITORY_MEASUREMENT = "github_repositories";
 	public static final String GITHUB_REPOSITORY_SIZE_FIELD = "size";
@@ -24,11 +26,16 @@ public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	private int size;
-	private int stars;
-	private int watchers;
-	private int forks;
-	private int openIssues;
+	@EntityField(name = GITHUB_REPOSITORY_SIZE_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int size;
+	@EntityField(name = GITHUB_REPOSITORY_STARS_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int stars;
+	@EntityField(name = GITHUB_REPOSITORY_WATCHERS_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int watchers;
+	@EntityField(name = GITHUB_REPOSITORY_FORKS_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int forks;
+	@EntityField(name = GITHUB_REPOSITORY_OPEN_ISSUE_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int openIssues;
 
 	private GithubRepositoryStatisticsEntity() {
 		super(GITHUB_REPOSITORY_MEASUREMENT, 0L, null);
@@ -80,15 +87,6 @@ public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 	@Override
 	public Object[] getFieldValuesList() {
 		return new Object[] { size, stars, watchers, forks, openIssues };
-	}
-
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		size = getIntValue(fieldValues.get(GITHUB_REPOSITORY_SIZE_FIELD));
-		stars = getIntValue(fieldValues.get(GITHUB_REPOSITORY_STARS_FIELD));
-		watchers = getIntValue(fieldValues.get(GITHUB_REPOSITORY_WATCHERS_FIELD));
-		forks = getIntValue(fieldValues.get(GITHUB_REPOSITORY_FORKS_FIELD));
-		openIssues = getIntValue(fieldValues.get(GITHUB_REPOSITORY_OPEN_ISSUE_FIELD));
 	}
 
 }

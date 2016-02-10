@@ -2,8 +2,10 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
+
 public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
-	public static final String GITHUB_TRAFFIC_MEASUREMENT = "github_traffic";
+	public static final String GITHUB_TRAFFIC_MEASUREMENT = "github_visitors";
 	public static final String GITHUB_TRAFFIC_VISITORS_FIELD = "visitors_count";
 	public static final String GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD = "unique_visitors_count";
 	public static final String GITHUB_TRAFFIC_PERCENTAGE_FIELD = "percentage_visitors";
@@ -23,10 +25,14 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	private int visitors;
-	private int uniqueVisitors;
-	private double percentageVisitors;
-	private double percentageUnique;
+	@EntityField(name = GITHUB_TRAFFIC_VISITORS_FIELD, metricType = MetricType.RELATIVE)
+	protected int visitors;
+	@EntityField(name = GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD, metricType = MetricType.RELATIVE)
+	protected int uniqueVisitors;
+	@EntityField(name = GITHUB_TRAFFIC_PERCENTAGE_FIELD, metricType = MetricType.RELATIVE)
+	protected double percentageVisitors;
+	@EntityField(name = GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD, metricType = MetricType.RELATIVE)
+	protected double percentageUnique;
 
 	private GithubTrafficStatisticsEntity() {
 		super(GITHUB_TRAFFIC_MEASUREMENT, 0L, null);
@@ -70,14 +76,6 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 		return new Object[] { visitors, uniqueVisitors, percentageVisitors, percentageUnique };
 	}
 
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		visitors = getIntValue(fieldValues.get(GITHUB_TRAFFIC_VISITORS_FIELD));
-		uniqueVisitors = getIntValue(fieldValues.get(GITHUB_TRAFFIC_UNIQUE_VISITORS_FIELD));
-		percentageVisitors = getDoubleValue(fieldValues.get(GITHUB_TRAFFIC_PERCENTAGE_FIELD));
-		percentageUnique = getDoubleValue(fieldValues.get(GITHUB_TRAFFIC_UNIQUE_PERCENTAGE_FIELD));
-	}
-
 	/**
 	 * @return the percentage
 	 */
@@ -107,5 +105,4 @@ public class GithubTrafficStatisticsEntity extends AbstractStatisticsEntity {
 	public void setPercentageUnique(double percentageUnique) {
 		this.percentageUnique = percentageUnique;
 	}
-
 }

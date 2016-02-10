@@ -2,6 +2,8 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
+
 public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String TWITTER_MEASUREMENT = "twitter";
 	public static final String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
@@ -25,13 +27,20 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	int ownTweets;
-	int retweets;
-	private int retweetsOfOwnTweets;
-	int mentions;
-	int likes;
-	int mentionLikes;
-	int followers;
+	@EntityField(name = TWITTER_OWN_TWEETS_FIELD, metricType = MetricType.RELATIVE)
+	protected int ownTweets;
+	@EntityField(name = TWITTER_RETWEETS_FIELD, metricType = MetricType.RELATIVE)
+	protected int retweets;
+	@EntityField(name = TWITTER_RETWEETS_OF_OWN_FIELD, metricType = MetricType.RELATIVE)
+	protected  int retweetsOfOwnTweets;
+	@EntityField(name = TWITTER_MENTIONS_FIELD, metricType = MetricType.RELATIVE)
+	protected int mentions;
+	@EntityField(name = TWITTER_LIKES_FIELD, metricType = MetricType.RELATIVE)
+	protected int likes;
+	@EntityField(name = TWITTER_MENTION_LIKES_FIELD, metricType = MetricType.RELATIVE)
+	protected int mentionLikes;
+	@EntityField(name = TWITTER_FOLLOWERS_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int followers;
 
 	private TwitterStatisticsEntity() {
 		super(TWITTER_MEASUREMENT, 0L, null);
@@ -87,17 +96,6 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	@Override
 	public Object[] getFieldValuesList() {
 		return new Object[] { ownTweets, retweets, getRetweetsOfOwnTweets(), mentions, likes, mentionLikes, followers };
-	}
-
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		ownTweets = getIntValue(fieldValues.get(TWITTER_OWN_TWEETS_FIELD));
-		retweets = getIntValue(fieldValues.get(TWITTER_RETWEETS_FIELD));
-		setRetweetsOfOwnTweets(getIntValue(fieldValues.get(TWITTER_RETWEETS_OF_OWN_FIELD)));
-		mentions = getIntValue(fieldValues.get(TWITTER_MENTIONS_FIELD));
-		likes = getIntValue(fieldValues.get(TWITTER_LIKES_FIELD));
-		mentionLikes = getIntValue(fieldValues.get(TWITTER_MENTION_LIKES_FIELD));
-		followers = getIntValue(fieldValues.get(TWITTER_FOLLOWERS_FIELD));
 	}
 
 	/**

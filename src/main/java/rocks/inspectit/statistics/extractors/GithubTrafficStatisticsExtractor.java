@@ -146,7 +146,8 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 	}
 
 	@SuppressWarnings("deprecation")
-	protected String getJSONString() {
+	@Override
+	protected String getJSONString(String apiUri) {
 		try {
 			DefaultHttpClient client = new DefaultHttpClient();
 			client.getCookieSpecs().register("lenient", new CookieSpecFactory() {

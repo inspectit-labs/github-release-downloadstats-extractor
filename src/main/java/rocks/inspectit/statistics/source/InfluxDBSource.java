@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -24,6 +25,7 @@ import org.influxdb.dto.QueryResult.Series;
 
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity.Identifier;
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IDataSource<T> {
 
@@ -144,7 +146,7 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 	public Map<String, Number> getAbsoluteCounts(long since, Identifier identifier, T template) {
 
 		String fields = "";
-		for (String field : template.getFieldNames()) {
+		for (String field : template.getFieldNames(MetricType.RELATIVE)) {
 			if (fields.isEmpty()) {
 				fields += "sum(" + field + ")";
 			} else {
@@ -186,14 +188,14 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 		Series series = result.getSeries().get(0);
 
 		Map<String, Number> resultMap = new HashMap<String, Number>();
-		String[] fieldNames = template.getFieldNames();
+		List<String> fieldNames = series.getColumns();
 		for (int j = 1; j < series.getValues().get(0).size(); j++) {
 			Object value = series.getValues().get(0).get(j);
 			if (value instanceof Double) {
 				double sum = 0.0;
 				if (value != null) {
 					sum += (Double) value;
-					resultMap.put(fieldNames[j - 1], sum);
+					resultMap.put(fieldNames.get(j), sum);
 				}
 			}
 
@@ -230,6 +232,80 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 			throw new RuntimeException(e);
 		}
 		return date.getTime();
+	}
+
+	@Override
+	public T getLast(Identifier identifier, T template) {
+		String where = "";
+
+		for (Entry<String, String> entry : template.getKeyValues().entrySet()) {
+			if (where.isEmpty()) {
+				where += entry.getKey() + "='" + entry.getValue() + "'";
+			} else {
+				where += ", " + entry.getKey() + "='" + entry.getValue() + "'";
+			}
+		}
+
+		String fields = "";
+		for (String field : template.getFieldNames()) {
+			if (fields.isEmpty()) {
+				fields += "LAST(" + field + ")";
+			} else {
+				fields += ", " + "LAST(" + field + ")";
+			}
+		}
+
+		String queryStatement;
+		if (!where.isEmpty()) {
+			queryStatement = "SELECT " + fields + " FROM " + template.getMeasurementName() + " WHERE " + where;
+		} else {
+			queryStatement = "SELECT " + fields + " FROM " + template.getMeasurementName();
+		}
+
+		Query query = new Query(queryStatement, databaseName);
+		QueryResult results = influxDB.query(query);
+
+		if (null == results || null == results.getResults() || results.getResults().isEmpty()) {
+			return null;
+		}
+
+		Result result = results.getResults().get(0);
+		List<Object> entry = result.getSeries().get(0).getValues().get(0);
+		Date date = null;
+		try {
+			String str = (String) entry.get(0);
+			str = str.replace("Z", "");
+			if (str.contains(".")) {
+				str = str.substring(0, str.lastIndexOf('.'));
+			}
+			date = format.parse(str);
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
+		long time = date.getTime();
+
+		int numberOfKeys = template.getKeyNames().length;
+		String[] keyValues = new String[numberOfKeys];
+		int i = 1;
+		while (i < 1 + numberOfKeys) {
+			keyValues[i - 1] = (String) entry.get(i);
+			i++;
+		}
+
+		int numberOfFields = template.getFieldNames().length;
+		Object[] fieldValues = new Object[numberOfFields];
+
+		while (i < 1 + numberOfKeys + numberOfFields) {
+			fieldValues[i - (numberOfKeys + 1)] = entry.get(i);
+			i++;
+		}
+
+		T entity;
+		try {
+			return (T) template.getClass().getConstructor(String[].class, Object[].class, long.class).newInstance(keyValues, fieldValues, time);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

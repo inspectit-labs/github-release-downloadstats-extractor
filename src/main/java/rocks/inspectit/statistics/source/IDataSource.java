@@ -36,5 +36,7 @@ public interface IDataSource<T extends AbstractStatisticsEntity> {
 	 */
 	Map<String, Number> getAbsoluteCounts(long since, Identifier identifier, T template);
 	
+	T getLast(Identifier identifier, T template);
+	
 	long getLatestTimestamp(T template);
 }

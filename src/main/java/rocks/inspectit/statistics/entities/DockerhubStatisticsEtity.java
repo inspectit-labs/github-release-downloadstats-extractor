@@ -2,14 +2,14 @@ package rocks.inspectit.statistics.entities;
 
 import java.util.Map;
 
-import rocks.inspectit.statistics.Constants;
+import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
 	public static final String DOCKER_HUB_MEASUREMENT = "docker_hub";
 	public static final String DOCKER_HUB_PULL_COUNT_FIELD = "pull_count";
 	public static final String DOCKER_HUB_STAR_COUNT_FIELD = "star_count";
 	public static final String DOCKER_HUB_NAME_TAG = "repository_name";
-	
+
 	public static final String[] KEY_NAMES = new String[] { DOCKER_HUB_NAME_TAG };
 	public static final String[] FIELD_NAMES = new String[] { DOCKER_HUB_PULL_COUNT_FIELD, DOCKER_HUB_STAR_COUNT_FIELD };
 
@@ -22,8 +22,11 @@ public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
 		return template;
 	}
 
-	private int starCount;
-	private int pullCount;
+	@EntityField(name = DOCKER_HUB_STAR_COUNT_FIELD, metricType = MetricType.ABSOLUTE)
+	protected int starCount;
+
+	@EntityField(name = DOCKER_HUB_PULL_COUNT_FIELD, metricType = MetricType.RELATIVE)
+	protected int pullCount;
 
 	private DockerhubStatisticsEtity() {
 		super(DOCKER_HUB_MEASUREMENT, 0L, null);
@@ -90,12 +93,6 @@ public class DockerhubStatisticsEtity extends AbstractStatisticsEntity {
 	@Override
 	public Object[] getFieldValuesList() {
 		return new Object[] { pullCount, starCount };
-	}
-
-	@Override
-	public void setFields(Map<String, Object> fieldValues) {
-		pullCount = getIntValue(fieldValues.get(DOCKER_HUB_PULL_COUNT_FIELD));
-		starCount = getIntValue(fieldValues.get(DOCKER_HUB_STAR_COUNT_FIELD));
 	}
 
 }
