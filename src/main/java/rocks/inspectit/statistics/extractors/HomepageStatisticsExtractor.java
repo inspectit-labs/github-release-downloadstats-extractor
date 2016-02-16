@@ -3,7 +3,6 @@ package rocks.inspectit.statistics.extractors;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
@@ -26,7 +25,7 @@ import com.google.api.services.analytics.model.GaData;
 
 public class HomepageStatisticsExtractor extends AbstractExtractor<WebPageStatisticsEntity> {
 	private static final String SERVICE_ACCOUNT_PRIVATE_KEY_KEY = "google.api.ga.serviceAccountKey";
-	private static final String PROFILE_ID_KEY = "google.api.ga.profileId";
+	private static final String PROFILE_ID_KEY = "google.api.ga.profileIds";
 	private static final String APPLICATION_NAME = "Statistics Extractor";
 	private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
@@ -37,34 +36,38 @@ public class HomepageStatisticsExtractor extends AbstractExtractor<WebPageStatis
 
 	@Override
 	public List<WebPageStatisticsEntity> getResultList() {
+		Analytics analytics;
 		try {
-			Analytics analytics = initializeAnalytics();
+			analytics = initializeAnalytics();
+		} catch (Exception e1) {
+			throw new RuntimeException(e1);
+		}
+		String[] profileIDs = getProperties().getProperty(PROFILE_ID_KEY).split(",");
+		List<WebPageStatisticsEntity> statistics = new ArrayList<>();
+		for (String profileId : profileIDs) {
+			try {
+				String dimensions = "ga:date," + getGAString(WebPageStatisticsEntity.KEY_NAMES, new String[] { WebPageStatisticsEntity.WEBPAGE_TRAFFIC_PROFILE_KEY });
+				String metrics = getGAString(WebPageStatisticsEntity.FIELD_NAMES, null);
+				GaData data = analytics.data().ga().get("ga:" + profileId, "yesterday", "yesterday", metrics).setDimensions(dimensions).execute();
 
-			String dimensions = getGAString(WebPageStatisticsEntity.KEY_NAMES, new String[] { WebPageStatisticsEntity.WEBPAGE_TRAFFIC_PROFILE_KEY }) + ",ga:date";
-			String metrics = getGAString(WebPageStatisticsEntity.FIELD_NAMES, null);
-			GaData data = analytics.data().ga().get("ga:" + getProperties().getProperty(PROFILE_ID_KEY), "2daysAgo", "2daysAgo", metrics).setDimensions(dimensions).execute();
-
-			if (data != null && null != data.getRows() && !data.getRows().isEmpty()) {
-				List<WebPageStatisticsEntity> statistics = new ArrayList<>();
-				Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-				for (List<String> row : data.getRows()) {
-					String time = row.get(4);
-					cal.set(Integer.parseInt(time.substring(0, 4)), Integer.parseInt(time.substring(4, 6)), Integer.parseInt(time.substring(6, 8)));
-					long timestamp = DateUtils.truncate(cal, Calendar.DATE).getTimeInMillis();
-					WebPageStatisticsEntity entity = new WebPageStatisticsEntity(timestamp, getProperties().getProperty(PROFILE_ID_KEY), row.get(0), row.get(1), row.get(2), row.get(3),
-							Integer.parseInt(row.get(5)), Integer.parseInt(row.get(6)), Integer.parseInt(row.get(7)), Integer.parseInt(row.get(8)), Double.parseDouble(row.get(9)),
-							Double.parseDouble(row.get(10)));
-					statistics.add(entity);
+				if (data != null && null != data.getRows() && !data.getRows().isEmpty()) {
+					Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+					for (List<String> row : data.getRows()) {
+						String time = row.get(0);
+						cal.set(Integer.parseInt(time.substring(0, 4)), Integer.parseInt(time.substring(4, 6)) - 1, Integer.parseInt(time.substring(6, 8)));
+						long timestamp = DateUtils.truncate(cal, Calendar.DATE).getTimeInMillis();
+						WebPageStatisticsEntity entity = new WebPageStatisticsEntity(timestamp, profileId, row.get(1), row.get(2), row.get(3), row.get(4), row.get(5), Integer.parseInt(row.get(6)),
+								Integer.parseInt(row.get(7)), Integer.parseInt(row.get(8)), Integer.parseInt(row.get(9)), Double.parseDouble(row.get(10)), Double.parseDouble(row.get(11)));
+						statistics.add(entity);
+					}
 				}
 
-				return statistics;
-			} else {
-				return Collections.emptyList();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
+		return statistics;
+
 	}
 
 	private String getGAString(String[] stringArray, String[] excludes) {

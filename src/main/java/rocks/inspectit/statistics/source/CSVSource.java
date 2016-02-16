@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import rocks.inspectit.statistics.Constants;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity.Identifier;
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
@@ -23,7 +22,7 @@ import rocks.inspectit.statistics.entities.EntityField.MetricType;
 public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSource<T> {
 	private static final char CSV_SEPARATOR = ',';
 	private static final String COMMA_REPLACEMENT = "#*&";
-
+private static final String TIMESTAMP = "time";
 	private final String fileName;
 
 	/**
@@ -34,7 +33,7 @@ public class CSVSource<T extends AbstractStatisticsEntity> implements IDataSourc
 	}
 
 	protected String getCSVHeader(AbstractStatisticsEntity template) {
-		String result = Constants.TIMESTAMP;
+		String result = TIMESTAMP;
 		for (String keyName : template.getKeyNames()) {
 			result += CSV_SEPARATOR + keyName;
 		}

@@ -1,10 +1,11 @@
 package rocks.inspectit.statistics.entities;
 
-import java.util.Map;
-
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
+	/**
+	 * Tags and fields.
+	 */
 	public static final String TWITTER_MEASUREMENT = "twitter";
 	public static final String TWITTER_OWN_TWEETS_FIELD = "own_tweets";
 	public static final String TWITTER_RETWEETS_FIELD = "retweets";
@@ -18,8 +19,15 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String[] FIELD_NAMES = new String[] { TWITTER_OWN_TWEETS_FIELD, TWITTER_RETWEETS_FIELD, TWITTER_RETWEETS_OF_OWN_FIELD, TWITTER_MENTIONS_FIELD, TWITTER_LIKES_FIELD,
 			TWITTER_MENTION_LIKES_FIELD, TWITTER_FOLLOWERS_FIELD };
 
+	/**
+	 * template instance.
+	 */
 	private static TwitterStatisticsEntity template;
 
+	/**
+	 * 
+	 * @return template instance
+	 */
 	public static TwitterStatisticsEntity getTemplate() {
 		if (null == template) {
 			template = new TwitterStatisticsEntity();
@@ -32,7 +40,7 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	@EntityField(name = TWITTER_RETWEETS_FIELD, metricType = MetricType.RELATIVE)
 	protected int retweets;
 	@EntityField(name = TWITTER_RETWEETS_OF_OWN_FIELD, metricType = MetricType.RELATIVE)
-	protected  int retweetsOfOwnTweets;
+	protected int retweetsOfOwnTweets;
 	@EntityField(name = TWITTER_MENTIONS_FIELD, metricType = MetricType.RELATIVE)
 	protected int mentions;
 	@EntityField(name = TWITTER_LIKES_FIELD, metricType = MetricType.RELATIVE)
@@ -42,11 +50,16 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 	@EntityField(name = TWITTER_FOLLOWERS_FIELD, metricType = MetricType.ABSOLUTE)
 	protected int followers;
 
+	/**
+	 * Constructor.
+	 */
 	private TwitterStatisticsEntity() {
 		super(TWITTER_MEASUREMENT, 0L, null);
 	}
 
 	/**
+	 * Constructor.
+	 * 
 	 * @param timestamp
 	 * @param ownTweets
 	 * @param retweets
@@ -67,6 +80,16 @@ public class TwitterStatisticsEntity extends AbstractStatisticsEntity {
 		this.setRetweetsOfOwnTweets(retweetsOfOwnTweets);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param keys
+	 *            key values
+	 * @param fields
+	 *            field values
+	 * @param timestamp
+	 *            timestamp
+	 */
 	public TwitterStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
 		super(TWITTER_MEASUREMENT, timestamp, keys);
 

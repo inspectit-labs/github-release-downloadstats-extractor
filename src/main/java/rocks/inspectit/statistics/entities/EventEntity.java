@@ -1,10 +1,11 @@
 package rocks.inspectit.statistics.entities;
 
-import java.util.Map;
-
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class EventEntity extends AbstractStatisticsEntity {
+	/**
+	 * Tags and fields.
+	 */
 	public static final String EVENTS_MEASUREMENT = "events";
 	public static final String EVENTS_TITLE_FIELD = "title";
 	public static final String EVENTS_DESCRIPTION_FIELD = "description";
@@ -24,8 +25,15 @@ public class EventEntity extends AbstractStatisticsEntity {
 	@EntityField(name = EVENTS_LEADS_FIELD, metricType = MetricType.ABSOLUTE)
 	protected int leads;
 
+	/**
+	 * Template instance.
+	 */
 	private static EventEntity template;
 
+	/**
+	 * 
+	 * @return the template instance
+	 */
 	public static EventEntity getTemplate() {
 		if (null == template) {
 			template = new EventEntity();
@@ -33,10 +41,23 @@ public class EventEntity extends AbstractStatisticsEntity {
 		return template;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	private EventEntity() {
 		super(EVENTS_MEASUREMENT, 0L, null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param timestamp
+	 * @param type
+	 * @param title
+	 * @param description
+	 * @param attendees
+	 * @param leads
+	 */
 	public EventEntity(long timestamp, String type, String title, String description, int attendees, int leads) {
 		super(EVENTS_MEASUREMENT, timestamp, new String[] { type });
 		this.title = title;
@@ -45,6 +66,16 @@ public class EventEntity extends AbstractStatisticsEntity {
 		this.leads = leads;
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param keys
+	 *            key values
+	 * @param fields
+	 *            field values
+	 * @param timestamp
+	 *            timestamp
+	 */
 	public EventEntity(String[] keys, Object[] fields, long timestamp) {
 		super(EVENTS_MEASUREMENT, timestamp, keys);
 

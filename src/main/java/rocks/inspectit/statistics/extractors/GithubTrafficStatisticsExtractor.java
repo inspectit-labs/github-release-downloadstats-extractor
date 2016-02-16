@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
@@ -46,10 +45,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.GithubTrafficStatisticsEntity;
-import rocks.inspectit.statistics.source.CSVSource;
-import rocks.inspectit.statistics.source.InfluxDBSource;
 
 public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTrafficStatisticsEntity> {
 	private static final String URL_KEY = "github.traffic.url";
@@ -60,7 +56,6 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 	private static final String GITHUB_LOGIN_URL = "https://github.com/login";
 	private static final String GITHUB_SESSION_URL = "https://github.com/session";
 	private static final String SEARCH_PATTERN_AUTHEN_TOKEN = "<input name=\"authenticity_token\" type=\"hidden\" value=\"";
-
 
 	public GithubTrafficStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
@@ -88,7 +83,7 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 			int overallUnique = Integer.parseInt(jsonObject.getJSONObject("summary").get("unique").toString());
 
 			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-			long timestamp = DateUtils.truncate(cal,Calendar.DATE).getTimeInMillis();
+			long timestamp = DateUtils.truncate(cal, Calendar.DATE).getTimeInMillis();
 			JSONArray referrer = jsonObject.getJSONArray("referrer");
 			for (int z = 0; z < referrer.length(); z++) {
 				String site = referrer.getJSONObject(z).get("site").toString();

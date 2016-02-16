@@ -27,12 +27,38 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * 5 hours time offset.
 	 */
 	private static final long TIME_OFFSET = 1000L * 60 * 60 * 20;
+
+	/**
+	 * Properties.
+	 */
 	private final Properties properties;
+
+	/**
+	 * Template instnace.
+	 */
 	private T template;
+
+	/**
+	 * Influx DB source.
+	 */
 	protected IDataSource<T> influxDBSource;
+
+	/**
+	 * CSV FTP source.
+	 */
 	protected IDataSource<T> csvFtpDataSource;
+
+	/**
+	 * Timestamp from which on absolute counts shell be calculated.
+	 */
 	private long absoluteCountsSinceTime;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param properties
+	 *            extractor properties.
+	 */
 	public AbstractExtractor(Properties properties) {
 		this.properties = properties;
 		initProperties(properties);
@@ -40,13 +66,16 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	}
 
 	/**
-	 * @param apiUri
+	 * Initializes the extractor.
+	 * 
 	 * @param template
-	 * @param influxDBSource
-	 * @param csvImportDataSource
-	 * @param csvExportDataSource
+	 *            template instance of the entity type
+	 * @param influxDB
+	 *            influx DB connector
 	 * @param absoluteCountsSinceTime
+	 *            timestamp from which on absolute counts shell be calculated.
 	 */
+
 	public void init(T template, InfluxDB influxDB, long absoluteCountsSinceTime) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
@@ -55,6 +84,13 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		this.absoluteCountsSinceTime = absoluteCountsSinceTime;
 	}
 
+	/**
+	 * Retrieves the JSON String from the given API URI.
+	 * 
+	 * @param apiUri
+	 *            API URI to send the request to
+	 * @return JSON string
+	 */
 	protected String getJSONString(String apiUri) {
 		if (null != apiUri) {
 			ResteasyClient client = new ResteasyClientBuilder().build();
@@ -69,6 +105,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 
 	}
 
+	/**
+	 * Stores results to database.
+	 * 
+	 * @param resultList
+	 *            results to store
+	 */
 	public void storeResultsToDatabase(final List<T> resultList) {
 		if (!resultList.isEmpty()) {
 			influxDBSource.store(resultList);
@@ -77,6 +119,13 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		}
 	}
 
+	/**
+	 * Processes data including filtering of existing entries, calculation of relative counts and
+	 * filtering of empty entries.
+	 * 
+	 * @param resultList
+	 *            the result list
+	 */
 	public void preprocessData(final List<T> resultList) {
 		if (!resultList.isEmpty()) {
 			filterExistingEntries(resultList, csvFtpDataSource);
@@ -85,6 +134,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		}
 	}
 
+	/**
+	 * Filters out empty entries
+	 * 
+	 * @param resultList
+	 * @param dataSource
+	 */
 	private void filterEmptyEntries(final List<T> resultList, IDataSource<T> dataSource) {
 		if (!resultList.isEmpty()) {
 			List<T> newList = new ArrayList<T>();
@@ -99,6 +154,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		}
 	}
 
+	/**
+	 * Creates backup.
+	 * 
+	 * @param resultList
+	 * @throws IOException
+	 */
 	public void createBackup(final List<T> resultList) throws IOException {
 		System.out.println("Creating Backup for " + template.getMeasurementName());
 
@@ -107,6 +168,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		System.out.println("Backup Succeeded");
 	}
 
+	/**
+	 * Calculates relative counts from absolute counts.
+	 * 
+	 * @param resultList
+	 * @param dataSource
+	 */
 	protected void calculateRelativeCounts(final List<T> resultList, IDataSource<T> dataSource) {
 		// calculate relative counts
 		if (needsRelativationOfValues() && !resultList.isEmpty()) {
@@ -124,6 +191,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		}
 	}
 
+	/**
+	 * Filters already existing entries.
+	 * 
+	 * @param resultList
+	 * @param dataSource
+	 */
 	protected void filterExistingEntries(final List<T> resultList, IDataSource<T> dataSource) {
 		// filter already existing entries
 		long timestampThreshold = getLatestTimestamp(dataSource);
@@ -137,6 +210,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		resultList.addAll(filteredList);
 	}
 
+	/**
+	 * Returns the latest timestamp from the given data source.
+	 * 
+	 * @param dataSource
+	 * @return
+	 */
 	protected long getLatestTimestamp(IDataSource<T> dataSource) {
 		return dataSource.getLatestTimestamp(template);
 	}

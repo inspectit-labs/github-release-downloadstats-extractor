@@ -2,7 +2,6 @@ package rocks.inspectit.statistics.extractors;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
@@ -14,10 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.GithubRepositoryStatisticsEntity;
-import rocks.inspectit.statistics.source.CSVSource;
-import rocks.inspectit.statistics.source.InfluxDBSource;
 
 public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<GithubRepositoryStatisticsEntity> {
 	private static final String URL_KEY = "github.repository.api.url";

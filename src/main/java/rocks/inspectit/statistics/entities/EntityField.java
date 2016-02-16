@@ -5,6 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation for the fields of {@link AbstractStatisticsEntity} instances to denote abstract and relative metrics.
+ * @author Alexander Wert
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface EntityField {
@@ -13,6 +18,13 @@ public @interface EntityField {
 	public String name();
 
 	public enum MetricType {
-		RELATIVE, ABSOLUTE;
+		/**
+		 * Relative metric (e.g. per time interval).
+		 */
+		RELATIVE, 
+		/**
+		 * Absolute metric (e.g. counter)
+		 */
+		ABSOLUTE;
 	}
 }

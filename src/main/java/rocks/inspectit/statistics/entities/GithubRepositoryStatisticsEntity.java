@@ -1,10 +1,11 @@
 package rocks.inspectit.statistics.entities;
 
-import java.util.Map;
-
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
+	/**
+	 * Tags and fields.
+	 */
 	public static final String GITHUB_REPOSITORY_MEASUREMENT = "github_repositories";
 	public static final String GITHUB_REPOSITORY_SIZE_FIELD = "size";
 	public static final String GITHUB_REPOSITORY_STARS_FIELD = "star_count";
@@ -17,8 +18,15 @@ public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String[] FIELD_NAMES = new String[] { GITHUB_REPOSITORY_SIZE_FIELD, GITHUB_REPOSITORY_STARS_FIELD, GITHUB_REPOSITORY_WATCHERS_FIELD, GITHUB_REPOSITORY_FORKS_FIELD,
 			GITHUB_REPOSITORY_OPEN_ISSUE_FIELD };
 
+	/**
+	 * Template instance.
+	 */
 	private static GithubRepositoryStatisticsEntity template;
 
+	/**
+	 * 
+	 * @return template instance
+	 */
 	public static GithubRepositoryStatisticsEntity getTemplate() {
 		if (null == template) {
 			template = new GithubRepositoryStatisticsEntity();
@@ -37,11 +45,16 @@ public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 	@EntityField(name = GITHUB_REPOSITORY_OPEN_ISSUE_FIELD, metricType = MetricType.ABSOLUTE)
 	protected int openIssues;
 
+	/**
+	 * Constructor.
+	 */
 	private GithubRepositoryStatisticsEntity() {
 		super(GITHUB_REPOSITORY_MEASUREMENT, 0L, null);
 	}
 
 	/**
+	 * Constructor.
+	 * 
 	 * @param measurementName
 	 * @param timestamp
 	 * @param keys
@@ -60,6 +73,16 @@ public class GithubRepositoryStatisticsEntity extends AbstractStatisticsEntity {
 		this.openIssues = openIssues;
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param keys
+	 *            key values
+	 * @param fields
+	 *            field values
+	 * @param timestamp
+	 *            timestamp
+	 */
 	public GithubRepositoryStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
 		super(GITHUB_REPOSITORY_MEASUREMENT, timestamp, keys);
 

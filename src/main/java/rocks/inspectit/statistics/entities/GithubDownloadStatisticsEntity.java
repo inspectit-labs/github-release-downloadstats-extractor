@@ -1,10 +1,11 @@
 package rocks.inspectit.statistics.entities;
 
-import java.util.Map;
-
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
 
 public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
+	/**
+	 * Tags and fields.
+	 */
 	public static final String GITHUB_DOWNLOADS_MEASUREMENT = "downloads";
 	public static final String GITHUB_COUNT_FIELD = "count";
 	public static final String GITHUB_MAJOR_VERSION_TAG = "MajorVersion";
@@ -17,8 +18,15 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	public static final String[] KEY_NAMES = new String[] { GITHUB_ARTIFACT_TAG, GITHUB_OS_TAG, GITHUB_ARCHITECTURE_TAG, GITHUB_MAJOR_VERSION_TAG, GITHUB_MINOR_VERSION_TAG, GITHUB_BUILD_NR_TAG };
 	public static final String[] FIELD_NAMES = new String[] { GITHUB_COUNT_FIELD };
 
+	/**
+	 * Template instance.
+	 */
 	private static GithubDownloadStatisticsEntity template;
 
+	/**
+	 * 
+	 * @return template instance.
+	 */
 	public static GithubDownloadStatisticsEntity getTemplate() {
 		if (null == template) {
 			template = new GithubDownloadStatisticsEntity();
@@ -29,15 +37,40 @@ public class GithubDownloadStatisticsEntity extends AbstractStatisticsEntity {
 	@EntityField(name = GITHUB_COUNT_FIELD, metricType = MetricType.RELATIVE)
 	protected int downloadCount;
 
+	/**
+	 * Constructor.
+	 */
 	private GithubDownloadStatisticsEntity() {
 		super(GITHUB_DOWNLOADS_MEASUREMENT, 0L, null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param timestamp
+	 * @param artifact
+	 * @param os
+	 * @param architecture
+	 * @param majorVersion
+	 * @param minorVersion
+	 * @param buildNr
+	 * @param donwloadCount
+	 */
 	public GithubDownloadStatisticsEntity(long timestamp, String artifact, String os, String architecture, String majorVersion, String minorVersion, String buildNr, int donwloadCount) {
 		super(GITHUB_DOWNLOADS_MEASUREMENT, timestamp, new String[] { artifact, os, architecture, majorVersion, minorVersion, buildNr });
 		setDownloadCount(donwloadCount);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param keys
+	 *            key values
+	 * @param fields
+	 *            field values
+	 * @param timestamp
+	 *            timestamp
+	 */
 	public GithubDownloadStatisticsEntity(String[] keys, Object[] fields, long timestamp) {
 		super(GITHUB_DOWNLOADS_MEASUREMENT, timestamp, keys);
 

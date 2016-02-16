@@ -12,16 +12,17 @@ import org.influxdb.InfluxDB;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import rocks.inspectit.statistics.Constants;
 import rocks.inspectit.statistics.entities.GithubDownloadStatisticsEntity;
 
 public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<GithubDownloadStatisticsEntity> {
 	private static final String URL_KEY = "github.api.url";
-	private static final String DOWNLOAD_URL_KEY = "github.downloads.inspectit.download.url";
+	private static final String DOWNLOAD_URL_KEY = "github.downloads.download.url";
+	private static final String DATA_SINCE_TIMESTAMP = "github.downloads.dataSinceTimestamp";
+	private long dataSince = 0L;
 
 	public GithubDownloadsStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(GithubDownloadStatisticsEntity.getTemplate(), influxDB, Constants.GITHUB_DATA_SINCE_TIMESTAMP);
+		init(GithubDownloadStatisticsEntity.getTemplate(), influxDB, dataSince);
 	}
 
 	@Override
@@ -32,12 +33,20 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 		if (!properties.contains(DOWNLOAD_URL_KEY) && System.getenv(DOWNLOAD_URL_KEY) != null) {
 			properties.setProperty(DOWNLOAD_URL_KEY, System.getenv(DOWNLOAD_URL_KEY));
 		}
+		if (properties.contains(DATA_SINCE_TIMESTAMP)) {
+			dataSince = Long.parseLong(properties.getProperty(DATA_SINCE_TIMESTAMP));
+		} else if (System.getenv(DATA_SINCE_TIMESTAMP) != null) {
+			dataSince = Long.parseLong(System.getenv(DATA_SINCE_TIMESTAMP));
+		}
 	}
 
 	@Override
 	protected void checkProperties(Properties properties) {
 		if (!properties.containsKey(URL_KEY)) {
 			throw new IllegalArgumentException("GitHub API URL not specified: " + URL_KEY);
+		}
+		if (!properties.containsKey(DOWNLOAD_URL_KEY)) {
+			throw new IllegalArgumentException("InspectIT Download URL not specified: " + DOWNLOAD_URL_KEY);
 		}
 		if (!properties.containsKey(DOWNLOAD_URL_KEY)) {
 			throw new IllegalArgumentException("InspectIT Download URL not specified: " + DOWNLOAD_URL_KEY);

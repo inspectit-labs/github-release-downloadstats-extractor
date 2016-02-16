@@ -13,6 +13,7 @@ import rocks.inspectit.statistics.extractors.EventsExtractor;
 import rocks.inspectit.statistics.extractors.GithubDownloadsStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubRepositoryStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.GithubTrafficStatisticsExtractor;
+import rocks.inspectit.statistics.extractors.HomepageStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.TwitterStatisticsExtractor;
 
 public class BackupImporter {
@@ -65,9 +66,10 @@ public class BackupImporter {
 		GithubTrafficStatisticsExtractor githubTrafficExtractor = new GithubTrafficStatisticsExtractor(properties, influx);
 		GithubRepositoryStatisticsExtractor githubRepositoryExtractor = new GithubRepositoryStatisticsExtractor(properties, influx);
 		TwitterStatisticsExtractor twitterExtractor = new TwitterStatisticsExtractor(properties, influx);
+		HomepageStatisticsExtractor homepageExtractor = new HomepageStatisticsExtractor(properties, influx);
 		EventsExtractor eventsExtractor = new EventsExtractor(properties, influx);
 		
-		importBackup(githubDownloadsExtractor,dockerHubExtractor,githubTrafficExtractor,githubRepositoryExtractor,twitterExtractor,eventsExtractor);
+		importBackup(githubDownloadsExtractor,dockerHubExtractor,githubTrafficExtractor,githubRepositoryExtractor,twitterExtractor,eventsExtractor,homepageExtractor);
 	}
 
 	private static void importBackup(IBackupImporter<?>... importers) {

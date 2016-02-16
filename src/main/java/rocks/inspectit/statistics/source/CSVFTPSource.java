@@ -124,6 +124,7 @@ public class CSVFTPSource<T extends AbstractStatisticsEntity> extends CSVSource<
 			InputStream inStream = ftpClient.retrieveFileStream(getFileName());
 
 			if (null == inStream) {
+				ftpClient.disconnect();
 				return Collections.emptyList();
 			}
 
