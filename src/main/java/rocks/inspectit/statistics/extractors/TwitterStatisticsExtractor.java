@@ -29,7 +29,7 @@ public class TwitterStatisticsExtractor extends AbstractExtractor<TwitterStatist
 
 	public TwitterStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(TwitterStatisticsEntity.getTemplate(), influxDB, 0L);
+		init(TwitterStatisticsEntity.getTemplate(), influxDB);
 	}
 
 	@Override
@@ -118,18 +118,18 @@ public class TwitterStatisticsExtractor extends AbstractExtractor<TwitterStatist
 
 	@Override
 	protected void initProperties(Properties properties) {
-		if (!properties.contains(CONSUMER_KEY_KEY) && System.getenv(CONSUMER_KEY_KEY) != null) {
+		if (!properties.containsKey(CONSUMER_KEY_KEY) && System.getenv(CONSUMER_KEY_KEY) != null) {
 			properties.setProperty(CONSUMER_KEY_KEY, System.getenv(CONSUMER_KEY_KEY));
 		}
-		if (!properties.contains(CONSUMER_SECRET_KEY) && System.getenv(CONSUMER_SECRET_KEY) != null) {
+		if (!properties.containsKey(CONSUMER_SECRET_KEY) && System.getenv(CONSUMER_SECRET_KEY) != null) {
 			properties.setProperty(CONSUMER_SECRET_KEY, System.getenv(CONSUMER_SECRET_KEY));
 		}
 
-		if (!properties.contains(TOKEN_KEY) && System.getenv(TOKEN_KEY) != null) {
+		if (!properties.containsKey(TOKEN_KEY) && System.getenv(TOKEN_KEY) != null) {
 			properties.setProperty(TOKEN_KEY, System.getenv(TOKEN_KEY));
 		}
 
-		if (!properties.contains(TOKEN_SECRET_KEY) && System.getenv(TOKEN_SECRET_KEY) != null) {
+		if (!properties.containsKey(TOKEN_SECRET_KEY) && System.getenv(TOKEN_SECRET_KEY) != null) {
 			properties.setProperty(TOKEN_SECRET_KEY, System.getenv(TOKEN_SECRET_KEY));
 		}
 	}

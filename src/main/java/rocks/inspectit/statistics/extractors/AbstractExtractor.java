@@ -51,7 +51,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	/**
 	 * Timestamp from which on absolute counts shell be calculated.
 	 */
-	private long absoluteCountsSinceTime;
+	protected long absoluteCountsSinceTime;
 
 	/**
 	 * Constructor.
@@ -76,12 +76,11 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 *            timestamp from which on absolute counts shell be calculated.
 	 */
 
-	public void init(T template, InfluxDB influxDB, long absoluteCountsSinceTime) {
+	public void init(T template, InfluxDB influxDB) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
 		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(
 				StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
-		this.absoluteCountsSinceTime = absoluteCountsSinceTime;
 	}
 
 	/**

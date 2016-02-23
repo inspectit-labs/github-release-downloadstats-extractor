@@ -31,7 +31,7 @@ public class HomepageStatisticsExtractor extends AbstractExtractor<WebPageStatis
 
 	public HomepageStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(WebPageStatisticsEntity.getTemplate(), influxDB, 0L);
+		init(WebPageStatisticsEntity.getTemplate(), influxDB);
 	}
 
 	@Override
@@ -103,11 +103,11 @@ public class HomepageStatisticsExtractor extends AbstractExtractor<WebPageStatis
 	@Override
 	protected void initProperties(Properties properties) {
 
-		if (!properties.contains(SERVICE_ACCOUNT_PRIVATE_KEY_KEY) && System.getenv(SERVICE_ACCOUNT_PRIVATE_KEY_KEY) != null) {
+		if (!properties.containsKey(SERVICE_ACCOUNT_PRIVATE_KEY_KEY) && System.getenv(SERVICE_ACCOUNT_PRIVATE_KEY_KEY) != null) {
 			properties.setProperty(SERVICE_ACCOUNT_PRIVATE_KEY_KEY, System.getenv(SERVICE_ACCOUNT_PRIVATE_KEY_KEY));
 		}
 
-		if (!properties.contains(PROFILE_ID_KEY) && System.getenv(PROFILE_ID_KEY) != null) {
+		if (!properties.containsKey(PROFILE_ID_KEY) && System.getenv(PROFILE_ID_KEY) != null) {
 			properties.setProperty(PROFILE_ID_KEY, System.getenv(PROFILE_ID_KEY));
 		}
 	}

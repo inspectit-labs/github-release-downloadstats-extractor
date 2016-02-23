@@ -59,7 +59,7 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 
 	public GithubTrafficStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(GithubTrafficStatisticsEntity.getTemplate(), influxDB, 0L);
+		init(GithubTrafficStatisticsEntity.getTemplate(), influxDB);
 	}
 
 	@Override
@@ -108,18 +108,18 @@ public class GithubTrafficStatisticsExtractor extends AbstractExtractor<GithubTr
 
 	@Override
 	protected void initProperties(Properties properties) {
-		if (!properties.contains(URL_KEY) && System.getenv(URL_KEY) != null) {
+		if (!properties.containsKey(URL_KEY) && System.getenv(URL_KEY) != null) {
 			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
 		}
-		if (!properties.contains(GITHUB_USERNAME_KEY) && System.getenv(GITHUB_USERNAME_KEY) != null) {
+		if (!properties.containsKey(GITHUB_USERNAME_KEY) && System.getenv(GITHUB_USERNAME_KEY) != null) {
 			properties.setProperty(GITHUB_USERNAME_KEY, System.getenv(GITHUB_USERNAME_KEY));
 		}
 
-		if (!properties.contains(GITHUB_PASSWORD_KEY) && System.getenv(GITHUB_PASSWORD_KEY) != null) {
+		if (!properties.containsKey(GITHUB_PASSWORD_KEY) && System.getenv(GITHUB_PASSWORD_KEY) != null) {
 			properties.setProperty(GITHUB_PASSWORD_KEY, System.getenv(GITHUB_PASSWORD_KEY));
 		}
 
-		if (!properties.contains(TOP_LIST_URL_KEY) && System.getenv(TOP_LIST_URL_KEY) != null) {
+		if (!properties.containsKey(TOP_LIST_URL_KEY) && System.getenv(TOP_LIST_URL_KEY) != null) {
 			properties.setProperty(TOP_LIST_URL_KEY, System.getenv(TOP_LIST_URL_KEY));
 		}
 	}

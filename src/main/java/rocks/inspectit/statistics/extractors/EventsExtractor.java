@@ -10,7 +10,7 @@ import rocks.inspectit.statistics.entities.EventEntity;
 public class EventsExtractor extends AbstractExtractor<EventEntity> {
 	public EventsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(EventEntity.getTemplate(), influxDB, 0L);
+		init(EventEntity.getTemplate(), influxDB);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 
 	public GithubRepositoryStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(GithubRepositoryStatisticsEntity.getTemplate(), influxDB,  0L);
+		init(GithubRepositoryStatisticsEntity.getTemplate(), influxDB);
 	}
 
 	@Override
@@ -65,10 +65,10 @@ public class GithubRepositoryStatisticsExtractor extends AbstractExtractor<Githu
 
 	@Override
 	protected void initProperties(Properties properties) {
-		if (!properties.contains(URL_KEY) && System.getenv(URL_KEY) != null) {
+		if (!properties.containsKey(URL_KEY) && System.getenv(URL_KEY) != null) {
 			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
 		}
-		if (!properties.contains(SUBSCRIBERS_URL_KEY) && System.getenv(SUBSCRIBERS_URL_KEY) != null) {
+		if (!properties.containsKey(SUBSCRIBERS_URL_KEY) && System.getenv(SUBSCRIBERS_URL_KEY) != null) {
 			properties.setProperty(SUBSCRIBERS_URL_KEY, System.getenv(SUBSCRIBERS_URL_KEY));
 		}
 	}

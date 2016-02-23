@@ -18,25 +18,25 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 	private static final String URL_KEY = "github.api.url";
 	private static final String DOWNLOAD_URL_KEY = "github.downloads.download.url";
 	private static final String DATA_SINCE_TIMESTAMP = "github.downloads.dataSinceTimestamp";
-	private long dataSince = 0L;
+	
 
 	public GithubDownloadsStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(GithubDownloadStatisticsEntity.getTemplate(), influxDB, dataSince);
+		init(GithubDownloadStatisticsEntity.getTemplate(), influxDB);
 	}
 
 	@Override
 	protected void initProperties(Properties properties) {
-		if (!properties.contains(URL_KEY) && System.getenv(URL_KEY) != null) {
+		if (!properties.containsKey(URL_KEY) && System.getenv(URL_KEY) != null) {
 			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
 		}
-		if (!properties.contains(DOWNLOAD_URL_KEY) && System.getenv(DOWNLOAD_URL_KEY) != null) {
+		if (!properties.containsKey(DOWNLOAD_URL_KEY) && System.getenv(DOWNLOAD_URL_KEY) != null) {
 			properties.setProperty(DOWNLOAD_URL_KEY, System.getenv(DOWNLOAD_URL_KEY));
 		}
-		if (properties.contains(DATA_SINCE_TIMESTAMP)) {
-			dataSince = Long.parseLong(properties.getProperty(DATA_SINCE_TIMESTAMP));
+		if (properties.containsKey(DATA_SINCE_TIMESTAMP)) {
+			absoluteCountsSinceTime = Long.parseLong(properties.getProperty(DATA_SINCE_TIMESTAMP));
 		} else if (System.getenv(DATA_SINCE_TIMESTAMP) != null) {
-			dataSince = Long.parseLong(System.getenv(DATA_SINCE_TIMESTAMP));
+			absoluteCountsSinceTime = Long.parseLong(System.getenv(DATA_SINCE_TIMESTAMP));
 		}
 	}
 

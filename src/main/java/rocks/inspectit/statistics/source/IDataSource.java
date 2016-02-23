@@ -45,7 +45,7 @@ public interface IDataSource<T extends AbstractStatisticsEntity> {
 	T getLast(Identifier identifier, T template);
 
 	/**
-	 * Retrieves latest timestamp
+	 * Retrieves latest timestamp.
 	 * 
 	 * @param template
 	 * @return

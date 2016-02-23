@@ -20,7 +20,7 @@ public class DockerhubStatisticsExtractor extends AbstractExtractor<DockerhubSta
 
 	public DockerhubStatisticsExtractor(Properties properties, InfluxDB influxDB) {
 		super(properties);
-		init(DockerhubStatisticsEtity.getTemplate(), influxDB, 0L);
+		init(DockerhubStatisticsEtity.getTemplate(), influxDB);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class DockerhubStatisticsExtractor extends AbstractExtractor<DockerhubSta
 
 	@Override
 	protected void initProperties(Properties properties) {
-		if (!properties.contains(URL_KEY) && System.getenv(URL_KEY) != null) {
+		if (!properties.containsKey(URL_KEY) && System.getenv(URL_KEY) != null) {
 			properties.setProperty(URL_KEY, System.getenv(URL_KEY));
 		}
 	}
