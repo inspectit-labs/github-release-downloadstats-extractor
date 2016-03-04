@@ -10,6 +10,13 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
+import rocks.inspectit.statistics.entities.DockerhubStatisticsEtity;
+import rocks.inspectit.statistics.entities.EventEntity;
+import rocks.inspectit.statistics.entities.GithubDownloadStatisticsEntity;
+import rocks.inspectit.statistics.entities.GithubRepositoryStatisticsEntity;
+import rocks.inspectit.statistics.entities.GithubTrafficStatisticsEntity;
+import rocks.inspectit.statistics.entities.TwitterStatisticsEntity;
+import rocks.inspectit.statistics.entities.WebPageStatisticsEntity;
 import rocks.inspectit.statistics.extractors.AbstractExtractor;
 import rocks.inspectit.statistics.extractors.DockerhubStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.EventsExtractor;
@@ -20,6 +27,8 @@ import rocks.inspectit.statistics.extractors.HomepageStatisticsExtractor;
 import rocks.inspectit.statistics.extractors.TwitterStatisticsExtractor;
 
 public class StatisticsExtractor {
+	public static final String ACTIVE_EXTRACTORS_KEY = "extractors";
+
 	public static final String INFLUX_DB_URL_KEY = "influxdb.url";
 	public static final String INFLUX_DB_USER_KEY = "influxdb.user";
 	public static final String INFLUX_DB_PASSWORD_KEY = "influxdb.password";
@@ -44,6 +53,9 @@ public class StatisticsExtractor {
 			}
 		}
 
+		if (!properties.contains(ACTIVE_EXTRACTORS_KEY) && System.getenv(ACTIVE_EXTRACTORS_KEY) != null) {
+			properties.setProperty(ACTIVE_EXTRACTORS_KEY, System.getenv(ACTIVE_EXTRACTORS_KEY));
+		}
 		if (!properties.contains(INFLUX_DB_URL_KEY) && System.getenv(INFLUX_DB_URL_KEY) != null) {
 			properties.setProperty(INFLUX_DB_URL_KEY, System.getenv(INFLUX_DB_URL_KEY));
 		}
@@ -72,16 +84,34 @@ public class StatisticsExtractor {
 		checkProperties(properties);
 		InfluxDB influx = InfluxDBFactory.connect(properties.getProperty(StatisticsExtractor.INFLUX_DB_URL_KEY), properties.getProperty(StatisticsExtractor.INFLUX_DB_USER_KEY),
 				properties.getProperty(StatisticsExtractor.INFLUX_DB_PASSWORD_KEY));
+		AbstractExtractor<?>[] extractors = getActiveExtractors(properties, influx);
+		retrieveStatistics(extractors);
+	}
 
-		GithubDownloadsStatisticsExtractor githubDownloadsExtractor = new GithubDownloadsStatisticsExtractor(properties, influx);
-		DockerhubStatisticsExtractor dockerHubExtractor = new DockerhubStatisticsExtractor(properties, influx);
-		GithubTrafficStatisticsExtractor githubTrafficExtractor = new GithubTrafficStatisticsExtractor(properties, influx);
-		GithubRepositoryStatisticsExtractor githubRepositoryExtractor = new GithubRepositoryStatisticsExtractor(properties, influx);
-		TwitterStatisticsExtractor twitterExtractor = new TwitterStatisticsExtractor(properties, influx);
-		EventsExtractor eventsExtractor = new EventsExtractor(properties, influx);
-		HomepageStatisticsExtractor homepageExtractor = new HomepageStatisticsExtractor(properties, influx);
-
-		retrieveStatistics(eventsExtractor, githubDownloadsExtractor, dockerHubExtractor, githubTrafficExtractor, githubRepositoryExtractor, twitterExtractor, homepageExtractor);
+	private static AbstractExtractor<?>[] getActiveExtractors(Properties properties, InfluxDB influx) {
+		String[] extractorKeys = properties.getProperty(ACTIVE_EXTRACTORS_KEY).split(",");
+		AbstractExtractor<?>[] extractors = new AbstractExtractor<?>[extractorKeys.length];
+		int i = 0;
+		for (String extractorKey : extractorKeys) {
+			extractorKey = extractorKey.trim();
+			if (GithubDownloadStatisticsEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new GithubDownloadsStatisticsExtractor(properties, influx);
+			} else if (DockerhubStatisticsEtity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new DockerhubStatisticsExtractor(properties, influx);
+			} else if (GithubTrafficStatisticsEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new GithubTrafficStatisticsExtractor(properties, influx);
+			} else if (GithubRepositoryStatisticsEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new GithubRepositoryStatisticsExtractor(properties, influx);
+			} else if (TwitterStatisticsEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new TwitterStatisticsExtractor(properties, influx);
+			} else if (EventEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new EventsExtractor(properties, influx);
+			} else if (WebPageStatisticsEntity.getTemplate().getMeasurementName().equalsIgnoreCase(extractorKey)) {
+				extractors[i] = new HomepageStatisticsExtractor(properties, influx);
+			}
+			i++;
+		}
+		return extractors;
 	}
 
 	private static void retrieveStatistics(AbstractExtractor<?>... extractors) {
@@ -113,7 +143,9 @@ public class StatisticsExtractor {
 	 *            {@link Properties} to check.
 	 */
 	public static void checkProperties(Properties properties) {
-
+		if (!properties.containsKey(ACTIVE_EXTRACTORS_KEY)) {
+			throw new IllegalArgumentException("Property not specified: " + ACTIVE_EXTRACTORS_KEY);
+		}
 		if (!properties.containsKey(INFLUX_DB_PASSWORD_KEY)) {
 			throw new IllegalArgumentException("Property not specified: " + INFLUX_DB_PASSWORD_KEY);
 		}
