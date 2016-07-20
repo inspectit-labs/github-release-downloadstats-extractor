@@ -132,10 +132,10 @@ public class GithubDownloadsStatisticsExtractor extends AbstractExtractor<Github
 	 * @return the label
 	 */
 	private String getArchitectureLabel(String string) {
-		if (string.contains(".x86.")) {
-			return "32 bit";
-		} else if (string.contains(".x64.") || string.contains(".x86_64.")) {
+		if (string.contains("x64") || string.contains("x86_64")) {
 			return "64 bit";
+		}else if (string.contains("x86")) {
+			return "32 bit";
 		}
 		return "undefined";
 	}
