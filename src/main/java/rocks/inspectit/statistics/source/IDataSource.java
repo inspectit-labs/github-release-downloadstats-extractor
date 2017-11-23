@@ -29,20 +29,11 @@ public interface IDataSource<T extends AbstractStatisticsEntity> {
 	 * 
 	 * @param since
 	 *            timestamp
-	 * @param identifier
-	 *            identifier of artifact
-	 * @return
-	 */
-	Map<String, Number> getAbsoluteCounts(long since, Identifier identifier, T template);
 
-	/**
-	 * Retrieves last entry for the given template and identifier.
-	 * 
-	 * @param identifier
-	 * @param template
 	 * @return
 	 */
-	T getLast(Identifier identifier, T template);
+	Map<Identifier, Map<String, Number>> getAbsoluteCounts(long since, T template);
+
 
 	/**
 	 * Retrieves latest timestamp.

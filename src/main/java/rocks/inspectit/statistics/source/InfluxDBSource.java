@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import javafx.util.Pair;
+
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.dto.BatchPoints;
@@ -141,39 +143,21 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 		}
 		return statistics;
 	}
-
-	@Override
-	public Map<String, Number> getAbsoluteCounts(long since, Identifier identifier, T template) {
-
+	
+	
+	public Map<Identifier, Map<String, Number>> getAbsoluteCounts(long since, T template) {
 		String fields = "";
 		for (String field : template.getFieldNames(MetricType.RELATIVE)) {
 			if (fields.isEmpty()) {
-				fields += "sum(" + field + ")";
+				fields += "sum(" + field + ") as \""+field+"\"";
 			} else {
-				fields += ", sum(" + field + ")";
+				fields += ", sum(" + field + ") as \""+field+"\"";
 			}
 		}
 
-		String whereClause = "";
-		int i = 0;
-		List<String> keyValues = identifier.getKeys();
-		String[] keyNames = template.getKeyNames();
-		while (i < keyValues.size()) {
-			if (whereClause.isEmpty()) {
-				whereClause += "WHERE " + keyNames[i] + "='" + keyValues.get(i) + "'";
-			} else {
-				whereClause += " AND " + keyNames[i] + "='" + keyValues.get(i) + "'";
-			}
+		String whereClause = "WHERE time > " + String.valueOf(since * 1000000L);
 
-			i++;
-		}
-		if (since > 0 && whereClause.isEmpty()) {
-			whereClause = "WHERE time > " + String.valueOf(since * 1000000L);
-		} else if (since > 0 && !whereClause.isEmpty()) {
-			whereClause += " AND time > " + String.valueOf(since * 1000000L);
-		}
-
-		String queryStr = "SELECT " + fields + " FROM " + template.getMeasurementName() + " " + whereClause;
+		String queryStr = "SELECT " + fields + " FROM " + template.getMeasurementName() + " " + whereClause + " GROUP BY *";
 
 		Query query = new Query(queryStr, databaseName);
 		QueryResult results = influxDB.query(query);
@@ -185,24 +169,38 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 			return null;
 		}
 		Result result = results.getResults().get(0);
-		Series series = result.getSeries().get(0);
 
-		Map<String, Number> resultMap = new HashMap<String, Number>();
-		List<String> fieldNames = series.getColumns();
-		for (int j = 1; j < series.getValues().get(0).size(); j++) {
-			Object value = series.getValues().get(0).get(j);
-			if (value instanceof Double) {
-				double sum = 0.0;
-				if (value != null) {
-					sum += (Double) value;
-					resultMap.put(fieldNames.get(j), sum);
-				}
+		Map<Identifier, Map<String, Number>> resultMap = new HashMap<Identifier, Map<String, Number>>();
+		for(Series series : result.getSeries()){
+			Map<String, String> tags = series.getTags();
+			String [] tagValueArray = new String[template.getKeyNames().length];
+			int i = 0;
+			for(String key : template.getKeyNames()){
+				tagValueArray[i] = tags.get(key);
+				i++;
 			}
+			Identifier identifier = new Identifier(tagValueArray);
+			
+			List<String> fieldNames = series.getColumns();
+			Map<String, Number> fieldValues = new HashMap<String, Number>();
+			resultMap.put(identifier, fieldValues);
+			for (int j = 1; j < series.getValues().get(0).size(); j++) {
+				Object value = series.getValues().get(0).get(j);
+				if (value instanceof Double) {
+					double sum = 0.0;
+					if (value != null) {
+						sum += (Double) value;
+						fieldValues.put(fieldNames.get(j), sum);
+					}
+				}
 
+			}
 		}
 
 		return resultMap;
 	}
+
+
 
 	@Override
 	public long getLatestTimestamp(T template) {
@@ -232,80 +230,6 @@ public class InfluxDBSource<T extends AbstractStatisticsEntity> implements IData
 			throw new RuntimeException(e);
 		}
 		return date.getTime();
-	}
-
-	@Override
-	public T getLast(Identifier identifier, T template) {
-		String where = "";
-
-		for (Entry<String, String> entry : template.getKeyValues().entrySet()) {
-			if (where.isEmpty()) {
-				where += entry.getKey() + "='" + entry.getValue() + "'";
-			} else {
-				where += ", " + entry.getKey() + "='" + entry.getValue() + "'";
-			}
-		}
-
-		String fields = "";
-		for (String field : template.getFieldNames()) {
-			if (fields.isEmpty()) {
-				fields += "LAST(" + field + ")";
-			} else {
-				fields += ", " + "LAST(" + field + ")";
-			}
-		}
-
-		String queryStatement;
-		if (!where.isEmpty()) {
-			queryStatement = "SELECT " + fields + " FROM " + template.getMeasurementName() + " WHERE " + where;
-		} else {
-			queryStatement = "SELECT " + fields + " FROM " + template.getMeasurementName();
-		}
-
-		Query query = new Query(queryStatement, databaseName);
-		QueryResult results = influxDB.query(query);
-
-		if (null == results || null == results.getResults() || results.getResults().isEmpty()) {
-			return null;
-		}
-
-		Result result = results.getResults().get(0);
-		List<Object> entry = result.getSeries().get(0).getValues().get(0);
-		Date date = null;
-		try {
-			String str = (String) entry.get(0);
-			str = str.replace("Z", "");
-			if (str.contains(".")) {
-				str = str.substring(0, str.lastIndexOf('.'));
-			}
-			date = format.parse(str);
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-		long time = date.getTime();
-
-		int numberOfKeys = template.getKeyNames().length;
-		String[] keyValues = new String[numberOfKeys];
-		int i = 1;
-		while (i < 1 + numberOfKeys) {
-			keyValues[i - 1] = (String) entry.get(i);
-			i++;
-		}
-
-		int numberOfFields = template.getFieldNames().length;
-		Object[] fieldValues = new Object[numberOfFields];
-
-		while (i < 1 + numberOfKeys + numberOfFields) {
-			fieldValues[i - (numberOfKeys + 1)] = entry.get(i);
-			i++;
-		}
-
-		T entity;
-		try {
-			return (T) template.getClass().getConstructor(String[].class, Object[].class, long.class).newInstance(keyValues, fieldValues, time);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }

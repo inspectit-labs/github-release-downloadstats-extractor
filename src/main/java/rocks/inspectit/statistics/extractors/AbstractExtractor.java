@@ -17,8 +17,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import rocks.inspectit.statistics.IBackupImporter;
 import rocks.inspectit.statistics.StatisticsExtractor;
 import rocks.inspectit.statistics.entities.AbstractStatisticsEntity;
+import rocks.inspectit.statistics.entities.AbstractStatisticsEntity.Identifier;
 import rocks.inspectit.statistics.entities.EntityField.MetricType;
-import rocks.inspectit.statistics.source.CSVFTPSource;
 import rocks.inspectit.statistics.source.IDataSource;
 import rocks.inspectit.statistics.source.InfluxDBSource;
 
@@ -42,11 +42,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * Influx DB source.
 	 */
 	protected IDataSource<T> influxDBSource;
-
-//	/**
-//	 * CSV FTP source.
-//	 */
-//	protected IDataSource<T> csvFtpDataSource;
 
 	/**
 	 * Timestamp from which on absolute counts shell be calculated.
@@ -79,8 +74,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	public void init(T template, InfluxDB influxDB) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
-//		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(
-//				StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
 	}
 
 	/**
@@ -129,27 +122,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 		if (!resultList.isEmpty()) {
 			filterExistingEntries(resultList, influxDBSource);
 			calculateRelativeCounts(resultList, influxDBSource);
-			filterEmptyEntries(resultList, influxDBSource);
-		}
-	}
-
-	/**
-	 * Filters out empty entries
-	 * 
-	 * @param resultList
-	 * @param dataSource
-	 */
-	private void filterEmptyEntries(final List<T> resultList, IDataSource<T> dataSource) {
-		if (!resultList.isEmpty()) {
-			List<T> newList = new ArrayList<T>();
-			for (T entity : resultList) {
-				T before = dataSource.getLast(entity.getIdentifier(), template);
-				if (before == null || entity.hasNewInformation(before)) {
-					newList.add(entity);
-				}
-			}
-			resultList.clear();
-			resultList.addAll(newList);
 		}
 	}
 
@@ -160,12 +132,7 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * @throws IOException
 	 */
 	public void createBackup(final List<T> resultList) throws IOException {
-//		System.out.println("Creating Backup for " + template.getMeasurementName());
-//
-//		csvFtpDataSource.store(resultList);
-//
-//		System.out.println("Backup Succeeded");
-		System.out.println("Backup cannot be created");
+		// TODO
 	}
 
 	/**
@@ -177,8 +144,13 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	protected void calculateRelativeCounts(final List<T> resultList, IDataSource<T> dataSource) {
 		// calculate relative counts
 		if (needsRelativationOfValues() && !resultList.isEmpty()) {
+			Map<Identifier, Map<String, Number>> absoluteCountsMap = dataSource.getAbsoluteCounts(absoluteCountsSinceTime, template);
 			for (T entity : resultList) {
-				Map<String, Number> absoluteCounts = dataSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(), template);
+				Map<String, Number> absoluteCounts = absoluteCountsMap.get(entity.getIdentifier());
+				// Map<String, Number> absoluteCounts =
+				// dataSource.getAbsoluteCounts(absoluteCountsSinceTime, entity.getIdentifier(),
+				// template);
+
 				if (null != absoluteCounts && !absoluteCounts.isEmpty()) {
 					Map<String, Object> relativeCounts = new HashMap<String, Object>();
 					Map<String, Object> fieldValues = entity.getFieldValues(MetricType.RELATIVE);
@@ -248,9 +220,6 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 
 	@Override
 	public void importBackup() {
-//		System.out.println("Importing Data from backup for " + template.getMeasurementName() + "...");
-//		List<T> oldData = csvFtpDataSource.load(template);
-//		influxDBSource.store(oldData);
-//		System.out.println("Backup imported.");
+		// TODO
 	}
 }
