@@ -43,10 +43,10 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 */
 	protected IDataSource<T> influxDBSource;
 
-	/**
-	 * CSV FTP source.
-	 */
-	protected IDataSource<T> csvFtpDataSource;
+//	/**
+//	 * CSV FTP source.
+//	 */
+//	protected IDataSource<T> csvFtpDataSource;
 
 	/**
 	 * Timestamp from which on absolute counts shell be calculated.
@@ -79,8 +79,8 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	public void init(T template, InfluxDB influxDB) {
 		this.template = template;
 		this.influxDBSource = new InfluxDBSource<T>(influxDB, properties.getProperty(StatisticsExtractor.INFLUX_DB_DATABASE_KEY));
-		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(
-				StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
+//		this.csvFtpDataSource = new CSVFTPSource<T>("backup_" + template.getMeasurementName() + ".csv", getProperties().getProperty(StatisticsExtractor.FTP_USER_KEY), getProperties().getProperty(
+//				StatisticsExtractor.FTP_PASSWORD_KEY), getProperties().getProperty(StatisticsExtractor.FTP_HOSTNAME_KEY), getProperties().getProperty(StatisticsExtractor.FTP_DIRECTORY_KEY));
 	}
 
 	/**
@@ -127,9 +127,9 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 */
 	public void preprocessData(final List<T> resultList) {
 		if (!resultList.isEmpty()) {
-			filterExistingEntries(resultList, csvFtpDataSource);
-			calculateRelativeCounts(resultList, csvFtpDataSource);
-			filterEmptyEntries(resultList, csvFtpDataSource);
+			filterExistingEntries(resultList, influxDBSource);
+			calculateRelativeCounts(resultList, influxDBSource);
+			filterEmptyEntries(resultList, influxDBSource);
 		}
 	}
 
@@ -160,11 +160,12 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 	 * @throws IOException
 	 */
 	public void createBackup(final List<T> resultList) throws IOException {
-		System.out.println("Creating Backup for " + template.getMeasurementName());
-
-		csvFtpDataSource.store(resultList);
-
-		System.out.println("Backup Succeeded");
+//		System.out.println("Creating Backup for " + template.getMeasurementName());
+//
+//		csvFtpDataSource.store(resultList);
+//
+//		System.out.println("Backup Succeeded");
+		System.out.println("Backup cannot be created");
 	}
 
 	/**
@@ -247,9 +248,9 @@ public abstract class AbstractExtractor<T extends AbstractStatisticsEntity> impl
 
 	@Override
 	public void importBackup() {
-		System.out.println("Importing Data from backup for " + template.getMeasurementName() + "...");
-		List<T> oldData = csvFtpDataSource.load(template);
-		influxDBSource.store(oldData);
-		System.out.println("Backup imported.");
+//		System.out.println("Importing Data from backup for " + template.getMeasurementName() + "...");
+//		List<T> oldData = csvFtpDataSource.load(template);
+//		influxDBSource.store(oldData);
+//		System.out.println("Backup imported.");
 	}
 }
